@@ -81,3 +81,4 @@ data/*.db
 data/*.sqlite
 
 .vercel
+.env*

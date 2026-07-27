@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "pnpm --filter @comunidad-albas/web dev",
-    "build": "pnpm --filter @comunidad-albas/web build",
+    "build": "pnpm db:generate && pnpm --filter @comunidad-albas/web build",
+"postinstall": "pnpm db:generate",
     "start": "pnpm --filter @comunidad-albas/web start",
     "lint": "pnpm --filter @comunidad-albas/web lint",
     "typecheck": "pnpm --filter @comunidad-albas/web typecheck",
