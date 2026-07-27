@@ -1,0 +1,34 @@
+# Variables de entorno
+
+## Local (`.env`)
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| `DATABASE_URL` | Conexión PostgreSQL | `postgresql://albas:albas_dev@localhost:5432/comunidad_albas?schema=public` |
+| `NEXT_PUBLIC_SITE_URL` | URL del sitio | `http://localhost:3000` |
+| `SESSION_SECRET` | Secreto para sesiones (min 32 chars) | `cambiar-por-un-secreto-seguro-de-al-menos-32-caracteres` |
+| `CSRF_SECRET` | Secreto para CSRF (min 32 chars) | `cambiar-por-otro-secreto-diferente-de-al-menos-32` |
+| `SMTP_HOST` | Servidor SMTP | `smtp.zoho.com` |
+| `SMTP_PORT` | Puerto SMTP | `587` |
+| `SMTP_SECURE` | TLS | `false` |
+| `SMTP_USER` | Usuario SMTP | (dejar vacío si no configurado) |
+| `SMTP_PASS` | Contraseña SMTP | (dejar vacío si no configurado) |
+| `SMTP_FROM` | Remitente | `contacto@comunidadalbas.com.mx` |
+| `CONTACT_NOTIFICATION_EMAIL` | Destino de notificaciones | `contacto@comunidadalbas.com.mx` |
+| `STORAGE_BUCKET` | Almacenamiento de objetos | (evaluar después) |
+
+## Producción (Vercel)
+
+Las mismas variables, con valores de producción.
+
+## Zoho SMTP (cuando esté disponible)
+
+```env
+SMTP_HOST=smtp.zoho.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=contacto@comunidadalbas.com.mx
+SMTP_PASS=contraseña-generada-en-zoho
+SMTP_FROM=contacto@comunidadalbas.com.mx
+CONTACT_NOTIFICATION_EMAIL=contacto@comunidadalbas.com.mx
+```

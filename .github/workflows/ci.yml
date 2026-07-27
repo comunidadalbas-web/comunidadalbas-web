@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'bootstrap/**']
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: albas
+          POSTGRES_PASSWORD: albas_dev
+          POSTGRES_DB: comunidad_albas
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready -U albas -d comunidad_albas
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: postgresql://albas:albas_dev@localhost:5432/comunidad_albas?schema=public
+
+      - name: Run Prisma migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://albas:albas_dev@localhost:5432/comunidad_albas?schema=public
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://albas:albas_dev@localhost:5432/comunidad_albas?schema=public
+          SESSION_SECRET: ci-test-secret-that-is-at-least-32-chars-long!!
+          CSRF_SECRET: ci-test-csrf-secret-that-is-at-least-32-chars
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secret scan with Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
