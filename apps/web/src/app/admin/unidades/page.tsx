@@ -1,0 +1,2 @@
+import {buildings} from '@/lib/mock';
+export default function Units(){return <><h1>Edificios y departamentos</h1><button>Nuevo edificio</button><p>La estructura es administrable; no existe un límite fijo de edificios o departamentos.</p><table><thead><tr><th>Edificio</th><th>Departamentos</th><th>Acción</th></tr></thead><tbody>{buildings.map(b=><tr key={b.id}><td>{b.name}</td><td>{b.units}</td><td>Editar</td></tr>)}</tbody></table></>}

@@ -1,0 +1,1 @@
+export default function Payments(){return <><h1>Pagos</h1><button>Capturar pago</button><p>Estados: reportado, confirmado, aplicado, aclaración. La confirmación requiere conciliación financiera.</p></>}

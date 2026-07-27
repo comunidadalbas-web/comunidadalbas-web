@@ -1,0 +1,1 @@
+export default function Expenses(){return <><h1>Egresos</h1><button>Nuevo egreso</button><p>Todo egreso requiere categoría, concepto, autorización, comprobante y conciliación.</p></>}
