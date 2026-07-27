@@ -8,9 +8,11 @@ export async function GET() {
     await prisma.$disconnect();
     return Response.json({ connected: true, contactRequests: count });
   } catch (err) {
-    return Response.json(
-      { connected: false, error: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : null },
-      { status: 500 },
-    );
+    const details = {
+      message: err instanceof Error ? err.message : String(err),
+      name: err instanceof Error ? err.name : typeof err,
+      stack: err instanceof Error ? err.stack?.split('\n').slice(0, 5).join('\n') : null,
+    };
+    return Response.json({ connected: false, ...details }, { status: 500 });
   }
 }
