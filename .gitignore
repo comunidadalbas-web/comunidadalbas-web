@@ -1,0 +1,80 @@
+# --- Secrets and credentials ---
+*.env
+*.env.local
+*.env.development
+*.env.production
+.env.*
+!*.env.example
+**/hostinger-recovery-codes.txt
+**/recovery-codes.txt
+**/recovery-codes*.txt
+**/*recovery*code*
+**/credentials.json
+**/credentials*.json
+**/service-account*.json
+**/firebase*.json
+**/*.pem
+**/*.key
+**/*-key.pem
+**/id_rsa*
+**/*.pfx
+**/*.p12
+
+# --- Documentation packages (private) ---
+Comunidad_Albas_Docs_paraPrompt.zip
+Comunidad_Albas_Paquete_Unificado_v2.0/
+Comunidad Albas00 Identidad Institucional/
+legal documents/
+**/Paquete_Documental_Consolidado_*.pdf
+
+# --- Node ---
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# --- Next.js ---
+.next/
+out/
+
+# --- Build output ---
+dist/
+build/
+coverage/
+
+# --- Prisma generated ---
+packages/db/src/generated/
+packages/db/prisma/client/
+node_modules/@prisma/client/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.~lock*
+*.lock*
+~$*
+*.tmp
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Logs ---
+*.log
+npm-debug.log*
+
+# --- Test ---
+.cache/
+playwright-report/
+test-results/
+
+# --- Docker ---
+data/postgres/
+
+# --- Project specific ---
+data/*.db
+data/*.sqlite
