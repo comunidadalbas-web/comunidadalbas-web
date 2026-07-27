@@ -1,0 +1,30 @@
+{
+  "name": "@comunidad-albas/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/client.ts",
+  "exports": {
+    ".": {
+      "import": "./src/client.ts",
+      "default": "./src/client.ts"
+    }
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "push": "prisma db push",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.0.0",
+    "@prisma/adapter-pg": "^7.0.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.0.0",
+    "@types/pg": "^8.11.0",
+    "dotenv": "^16.4.0",
+    "typescript": "^5.9.0"
+  }
+}

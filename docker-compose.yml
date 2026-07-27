@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: albas
+      POSTGRES_PASSWORD: albas_dev
+      POSTGRES_DB: comunidad_albas
+    ports:
+      - "5432:5432"
+    volumes:
+      - albas_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U albas -d comunidad_albas"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  albas_pgdata:

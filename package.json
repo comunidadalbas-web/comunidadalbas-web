@@ -1,0 +1,28 @@
+{
+  "name": "comunidad-albas",
+  "private": true,
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @comunidad-albas/web dev",
+    "build": "pnpm --filter @comunidad-albas/web build",
+    "start": "pnpm --filter @comunidad-albas/web start",
+    "lint": "pnpm --filter @comunidad-albas/web lint",
+    "typecheck": "pnpm --filter @comunidad-albas/web typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,css,md}\"",
+    "db:generate": "pnpm --filter @comunidad-albas/db generate",
+    "db:migrate": "pnpm --filter @comunidad-albas/db migrate",
+    "db:push": "pnpm --filter @comunidad-albas/db push",
+    "db:studio": "pnpm --filter @comunidad-albas/db studio",
+    "test": "pnpm --filter @comunidad-albas/web test",
+    "test:e2e": "pnpm --filter @comunidad-albas/web test:e2e",
+    "ci": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@prisma/client": "^7.0.0",
+    "prettier": "^3.5.0"
+  }
+}
