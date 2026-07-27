@@ -79,3 +79,5 @@ data/postgres/
 # --- Project specific ---
 data/*.db
 data/*.sqlite
+
+.vercel

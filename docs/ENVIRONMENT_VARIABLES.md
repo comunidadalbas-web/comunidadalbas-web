@@ -11,24 +11,24 @@
 | `SMTP_HOST` | Servidor SMTP | `smtp.zoho.com` |
 | `SMTP_PORT` | Puerto SMTP | `587` |
 | `SMTP_SECURE` | TLS | `false` |
-| `SMTP_USER` | Usuario SMTP | (dejar vacío si no configurado) |
-| `SMTP_PASS` | Contraseña SMTP | (dejar vacío si no configurado) |
-| `SMTP_FROM` | Remitente | `contacto@comunidadalbas.com.mx` |
-| `CONTACT_NOTIFICATION_EMAIL` | Destino de notificaciones | `contacto@comunidadalbas.com.mx` |
+| `SMTP_USER` | Usuario SMTP | `secretaria@comunidadalbas.com.mx` |
+| `SMTP_PASS` | Contraseña SMTP | (en Vercel env, no exponer) |
+| `SMTP_FROM` | Remitente | `secretaria@comunidadalbas.com.mx` |
+| `CONTACT_NOTIFICATION_EMAIL` | Destino de notificaciones | `secretaria@comunidadalbas.com.mx` |
 | `STORAGE_BUCKET` | Almacenamiento de objetos | (evaluar después) |
 
 ## Producción (Vercel)
 
 Las mismas variables, con valores de producción.
 
-## Zoho SMTP (cuando esté disponible)
+## Zoho SMTP (configurado)
 
 ```env
 SMTP_HOST=smtp.zoho.com
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=contacto@comunidadalbas.com.mx
-SMTP_PASS=contraseña-generada-en-zoho
-SMTP_FROM=contacto@comunidadalbas.com.mx
-CONTACT_NOTIFICATION_EMAIL=contacto@comunidadalbas.com.mx
+SMTP_USER=secretaria@comunidadalbas.com.mx
+SMTP_FROM=secretaria@comunidadalbas.com.mx
+CONTACT_NOTIFICATION_EMAIL=secretaria@comunidadalbas.com.mx
+SMTP_PASS=<contraseña en Vercel env, no exponer>
 ```

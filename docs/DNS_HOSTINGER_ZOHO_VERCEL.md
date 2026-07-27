@@ -6,49 +6,26 @@
 - **Nameservers**: `horizon.dns-parking.com`, `orbit.dns-parking.com`
 - **Dominio**: `comunidadalbas.com.mx`
 - **Correo**: Zoho Mail (5 cuentas activas)
-- **Alojamiento web**: Vercel (pendiente de configurar)
+- **Alojamiento web**: Vercel (configurado)
+
+### Registros DNS configurados en Hostinger
+
+| Tipo | Nombre | Valor | TTL |
+|------|--------|-------|-----|
+| A | @ | `76.76.21.21` | 14400 |
+| CNAME | www | `cname.vercel-dns.com` | 14400 |
+| MX | @ | mx.zoho.com (10) | 14400 |
+| MX | @ | mx2.zoho.com (20) | 14400 |
+| MX | @ | mx3.zoho.com (50) | 14400 |
+| TXT | @ | `v=spf1 include:zohomail.com ~all` | 14400 |
+| TXT | @ | `zoho-verification=zb14062891.zmverify.zoho.com` | 14400 |
+| TXT | @ | DKIM key | 14400 |
 
 ## Reglas inmutables
 
 1. **No cambiar los nameservers** a Vercel ni Cloudflare.
-2. **No modificar registros MX, SPF, DKIM ni DMARC** de Zoho.
+2. **No modificar ni eliminar registros MX, SPF, DKIM ni DMARC** de Zoho.
 3. Toda la configuración DNS debe hacerse **manualmente** desde el panel de Hostinger.
-
-## Procedimiento para conectar Vercel
-
-### 1. Importar el proyecto en Vercel
-
-- Desde https://vercel.com, importar `comunidadalbas-web/comunidadalbas-web`
-- Configurar root directory como `apps/web`
-
-### 2. Obtener registros DNS desde Vercel
-
-Una vez importado, Vercel mostrará los registros DNS necesarios.
-Ejecutar en terminal local (si Vercel CLI está autenticado):
-
-```bash
-vercel domains inspect comunidadalbas.com.mx
-```
-
-Los valores típicos para Vercel son:
-
-| Tipo | Nombre | Valor |
-|------|--------|-------|
-| CNAME | www | `cname.vercel-dns.com` |
-| A | @ | `76.76.21.21` |
-| A | @ | `76.76.21.98` |
-
-> **Importante**: Verificar los valores exactos desde el panel de Vercel o CLI para este proyecto concreto. No hardcodear IPs.
-
-### 3. Agregar registros en Hostinger
-
-En el panel de DNS de Hostinger:
-
-- **A record** para `comunidadalbas.com.mx` → IPs de Vercel
-- **CNAME** para `www` → `cname.vercel-dns.com` (o el valor exacto)
-- **Redirección canónica**: www → dominio raíz (configurar en Vercel)
-
-### 4. Preservar registros de Zoho
 
 Los siguientes registros **no deben modificarse ni eliminarse**:
 
@@ -61,9 +38,15 @@ TXT: zoho-verify=... (DKIM)
 TXT: v=DMARC1; p=quarantine; ... (DMARC)
 ```
 
-### 5. Verificar después de la propagación
+### 5. Próximos pasos (cuando DNS propague)
 
-- HTTPS funcionando con certificado de Vercel
-- Redirección www → raíz
-- Correo funcionando (MX intactos)
-- health endpoint: `https://comunidadalbas.com.mx/health`
+- HTTPS con certificado automático de Vercel (se emite tras propagación)
+- Redirección www → raíz (automática en Vercel si se configura)
+- Verificar health endpoint: `https://comunidadalbas.com.mx/health`
+- Verificar correo en `secretaria@comunidadalbas.com.mx`
+
+### 6. Referencia
+
+- Panel Hostinger DNS: https://hpanel.hostinger.com/dominios/comunidadalbas.com.mx/dns
+- Proyecto Vercel: https://vercel.com/comunidadalbas-web1/comunidadalbas-web1/settings
+- Repo GitHub: https://github.com/comunidadalbas-web/comunidadalbas-web

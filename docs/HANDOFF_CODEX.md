@@ -156,32 +156,31 @@ Ver `docs/ENVIRONMENT_VARIABLES.md` para la lista completa.
 - Configurar branch protection para `main`
 - Configurar GitHub Secrets para CI
 
-### Vercel
-- Crear proyecto importando desde GitHub
-- Configurar root directory: `apps/web`
-- Configurar variables de entorno
-- Obtener registros DNS del panel de Vercel
+### Vercel ✅
+- ~~Crear proyecto importando desde GitHub~~ → Ya existe `comunidadalbas-web1`
+- ~~Configurar root directory: `apps/web`~~ → Hecho vía API
+- ~~Configurar variables de entorno~~ → SMTP configurado vía API
+- ~~Obtener registros DNS del panel de Vercel~~ → A `76.76.21.21`, CNAME `www` → `cname.vercel-dns.com`
 
-### Hostinger
-- Capturar manualmente los registros DNS que indique Vercel
-- No modificar MX, SPF, DKIM ni DMARC de Zoho
-- **Regenerar códigos de recuperación** (incidente de seguridad)
+### Hostinger ✅
+- ~~Agregar A record y CNAME~~ → Hecho manualmente en panel
+- ~~No modificar MX, SPF, DKIM ni DMARC de Zoho~~ → Preservados
+- ~~**Regenerar códigos de recuperación**~~ → Pendiente (Boris)
 
-### Zoho
-- Configurar SMTP para notificaciones
-- Verificar firmas DKIM
+### Zoho ✅
+- ~~Configurar SMTP para notificaciones~~ → Credenciales en Vercel env vars
+- Verificar firmas DKIM (pendiente)
 
 ### Propietario (Boris)
-- Regenerar códigos de recuperación de Hostinger
-- Configurar SMTP en Zoho y actualizar .env en Vercel
-- Verificar que el dominio `comunidadalbas.com.mx` esté apuntando correctamente
+- ~~Regenerar códigos de recuperación de Hostinger~~ → Pendiente
+- ~~Configurar SMTP en Zoho~~ → Hecho
+- Verificar que el dominio `comunidadalbas.com.mx` esté apuntando correctamente (pendiente propagación DNS)
 
 ## Riesgos de seguridad
 
-1. **Códigos de recuperación expuestos** en paquete compartido — regenerar en Hostinger
-2. **SMTP sin configurar** — no hay notificaciones reales hasta que Zoho esté listo
-3. **Autenticación pendiente** — /admin no tiene protección real
-4. **Rate limiting en memoria** — se pierde al reiniciar; migrar a Redis o DB en producción
+1. **Códigos de recuperación expuestos** en paquete compartido — regenerar en Hostinger (pendiente)
+2. **Autenticación pendiente** — /admin no tiene protección real
+3. **Rate limiting en memoria** — se pierde al reiniciar; migrar a Redis o DB en producción
 
 ## Siguiente fase priorizada
 
