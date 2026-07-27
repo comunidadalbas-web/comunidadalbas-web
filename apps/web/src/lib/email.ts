@@ -47,6 +47,7 @@ export function createEmailAdapter(): EmailAdapter {
         return { success: true };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
+        console.error('SMTP send error:', message);
         return { success: false, error: message };
       }
     },
