@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
-import { registerWebhook } from '@/lib/mercadopago/webhook';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,30 +7,19 @@ export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
 
-  try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://comunidadalbas.com.mx';
-    const webhookUrl = `${siteUrl}/api/integrations/mercadopago/webhook`;
+  const webhookUrl = 'https://comunidadalbas.com.mx/api/integrations/mercadopago/webhook';
+  const hasSecret = !!process.env.MERCADOPAGO_WEBHOOK_SECRET;
 
-    const result = await registerWebhook(webhookUrl);
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error || 'Error al registrar webhook' },
-        { status: 502 },
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      webhookUrl,
-      message: 'Webhook registrado en Mercado Pago',
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Error interno';
-    console.error('register-webhook error:', message);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 },
-    );
-  }
+  return NextResponse.json({
+    webhookUrl,
+    webhookSecretConfigured: hasSecret,
+    instructions: [
+      '1. Ve a https://www.mercadopago.com.mx/developers/panel/apps',
+      '2. Selecciona tu aplicación de prueba',
+      '3. En la sección Webhooks, agrega: ' + webhookUrl,
+      '4. Configura el mismo MERCADOPAGO_WEBHOOK_SECRET que está en Vercel',
+      '5. Activa los eventos: order.created, order.updated, payment.created, payment.updated',
+      '6. Guarda los cambios',
+    ],
+  });
 }
