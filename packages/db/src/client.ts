@@ -16,5 +16,5 @@ export type {
   Building, Unit, FeeConcept, Charge,
   Payment, PaymentApplication, Expense,
   Document, User, RoleAssignment, AuditLog,
-  ContactRequest, MercadoPagoOrder,
+  ContactRequest, MercadoPagoOrder, MercadoPagoWebhookEvent,
 } from '../prisma/client/client';
