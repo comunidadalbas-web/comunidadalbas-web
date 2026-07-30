@@ -15,8 +15,10 @@ function getWebhookSecret(): string {
   const env = process.env.MERCADOPAGO_ENV || 'test';
   const varName = env === 'production' ? 'MERCADOPAGO_WEBHOOK_SECRET_PROD' : 'MERCADOPAGO_WEBHOOK_SECRET_TEST';
   const secret = process.env[varName];
-  if (!secret) throw new Error(`${varName} no configurado`);
-  return secret;
+  if (secret) return secret;
+  const legacy = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  if (legacy) return legacy;
+  throw new Error(`${varName} no configurado`);
 }
 
 function parseSignatureHeader(header: string): { ts: string; v1: string } | null {

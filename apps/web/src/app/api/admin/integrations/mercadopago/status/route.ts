@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
   const env = process.env.MERCADOPAGO_ENV || 'test';
   const hasToken = !!process.env.MERCADOPAGO_ACCESS_TOKEN_TEST;
   const hasProdToken = !!process.env.MERCADOPAGO_ACCESS_TOKEN_PROD;
-  const hasWebhookSecret = !!process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST;
+  const webhookSecretVar = env === 'production' ? 'MERCADOPAGO_WEBHOOK_SECRET_PROD' : 'MERCADOPAGO_WEBHOOK_SECRET_TEST';
+  const hasWebhookSecret = !!(process.env[webhookSecretVar] || process.env.MERCADOPAGO_WEBHOOK_SECRET);
   const webhookUrl = 'https://comunidadalbas.com.mx/api/integrations/mercadopago/webhook';
 
   const lastOrder = await prisma.mercadoPagoOrder.findFirst({
