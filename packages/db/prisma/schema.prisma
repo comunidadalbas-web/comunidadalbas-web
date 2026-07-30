@@ -191,3 +191,20 @@ model ContactRequest {
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
 }
+
+model MercadoPagoOrder {
+  id                String   @id @default(cuid())
+  orderId           String   @unique
+  externalReference String
+  status            String
+  statusDetail      String?
+  paymentId         String?
+  reference         String?
+  ticketUrl         String?
+  amount            Decimal  @db.Decimal(12, 2)
+  environment       String   @default("test")
+  idempotencyKey    String
+  rawResponse       Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
