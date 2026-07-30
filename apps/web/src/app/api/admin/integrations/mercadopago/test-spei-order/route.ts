@@ -51,10 +51,9 @@ export async function POST(request: NextRequest) {
     if (result.ticketUrl) {
       try {
         const url = new URL(result.ticketUrl);
-        if (url.protocol !== 'https:' || !url.hostname.endsWith('mercadopago.com')) {
-          console.error('ticket_url no corresponde a Mercado Pago:', result.ticketUrl);
+        if (url.protocol !== 'https:') {
           return NextResponse.json(
-            { error: 'La URL del ticket no es válida' },
+            { error: 'La URL del ticket no es HTTPS' },
             { status: 502 },
           );
         }
