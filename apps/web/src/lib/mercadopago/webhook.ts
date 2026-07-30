@@ -12,8 +12,10 @@ export interface MercadoPagoWebhookPayload {
 }
 
 function getWebhookSecret(): string {
-  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-  if (!secret) throw new Error('MERCADOPAGO_WEBHOOK_SECRET no configurado');
+  const env = process.env.MERCADOPAGO_ENV || 'test';
+  const varName = env === 'production' ? 'MERCADOPAGO_WEBHOOK_SECRET_PROD' : 'MERCADOPAGO_WEBHOOK_SECRET_TEST';
+  const secret = process.env[varName];
+  if (!secret) throw new Error(`${varName} no configurado`);
   return secret;
 }
 
@@ -76,7 +78,9 @@ export async function processOrderNotification(resourceId: string): Promise<void
 
 export async function registerWebhook(url: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const token = process.env.MERCADOPAGO_ACCESS_TOKEN_TEST;
+    const env = process.env.MERCADOPAGO_ENV || 'test';
+    const varName = env === 'production' ? 'MERCADOPAGO_ACCESS_TOKEN_PROD' : 'MERCADOPAGO_ACCESS_TOKEN_TEST';
+    const token = process.env[varName];
     if (!token) return { success: false, error: 'Token no configurado' };
 
     const res = await fetch('https://api.mercadopago.com/v1/webhooks', {

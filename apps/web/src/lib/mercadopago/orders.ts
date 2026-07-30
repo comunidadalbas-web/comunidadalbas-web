@@ -4,15 +4,11 @@ import type { MercadoPagoCreateOrderParams, MercadoPagoOrderResponse, CreateSpei
 const BASE_URL = 'https://api.mercadopago.com/v1';
 
 function getAccessToken(): string {
-  const token = process.env.MERCADOPAGO_ACCESS_TOKEN_TEST;
-  if (!token || token.length === 0) {
-    throw new Error('MERCADOPAGO_ACCESS_TOKEN_TEST no configurado');
-  }
+  const env = process.env.MERCADOPAGO_ENV || 'test';
+  const varName = env === 'production' ? 'MERCADOPAGO_ACCESS_TOKEN_PROD' : 'MERCADOPAGO_ACCESS_TOKEN_TEST';
+  const token = process.env[varName];
+  if (!token) throw new Error(`${varName} no configurado`);
   return token;
-}
-
-function getEnvironment(): string {
-  return process.env.MERCADOPAGO_ENV || 'test';
 }
 
 function sanitizeForLog(obj: unknown): unknown {
@@ -20,13 +16,9 @@ function sanitizeForLog(obj: unknown): unknown {
   if (Array.isArray(obj)) return obj.map(sanitizeForLog);
   const sanitized: Record<string, unknown> = {};
   for (const [key, val] of Object.entries(obj as Record<string, unknown>)) {
-    if (/secret|token|auth|password|key/i.test(key)) {
-      sanitized[key] = '[REDACTED]';
-    } else if (typeof val === 'object' && val !== null) {
-      sanitized[key] = sanitizeForLog(val);
-    } else {
-      sanitized[key] = val;
-    }
+    if (/secret|token|auth|password|key/i.test(key)) sanitized[key] = '[REDACTED]';
+    else if (typeof val === 'object' && val !== null) sanitized[key] = sanitizeForLog(val);
+    else sanitized[key] = val;
   }
   return sanitized;
 }
@@ -41,17 +33,11 @@ async function mpFetch<T>(
     Authorization: `Bearer ${token}`,
     ...(options.headers as Record<string, string>),
   };
-  if (options.idempotencyKey) {
-    headers['X-Idempotency-Key'] = options.idempotencyKey;
-  }
+  if (options.idempotencyKey) headers['X-Idempotency-Key'] = options.idempotencyKey;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      ...options,
-      headers,
-      signal: controller.signal,
-    });
+    const res = await fetch(`${BASE_URL}${path}`, { ...options, headers, signal: controller.signal });
     if (!res.ok) {
       const body = await res.text();
       console.error('MP API error', sanitizeForLog({ status: res.status, body }));
@@ -79,15 +65,7 @@ export async function createSpeiOrder(
         email: params.payerEmail,
       },
       transactions: {
-        payments: [
-          {
-            amount: params.totalAmount,
-            payment_method: {
-              id: 'clabe',
-              type: 'bank_transfer',
-            },
-          },
-        ],
+        payments: [{ amount: params.totalAmount, payment_method: { id: 'clabe', type: 'bank_transfer' } }],
       },
     };
     const order = await mpFetch<MercadoPagoOrderResponse>('/orders', {
@@ -105,6 +83,7 @@ export async function createSpeiOrder(
       paymentId: payment?.id?.toString(),
       reference: paymentMethod?.reference,
       ticketUrl: paymentMethod?.ticket_url,
+      expiresAt: order.date_expiration,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error desconocido';

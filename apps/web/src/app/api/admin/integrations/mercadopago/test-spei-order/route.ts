@@ -65,6 +65,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const expiresAt = result.expiresAt ? new Date(result.expiresAt) : null;
+
     await prisma.mercadoPagoOrder.create({
       data: {
         orderId: result.orderId!,
@@ -74,6 +76,7 @@ export async function POST(request: NextRequest) {
         paymentId: result.paymentId,
         reference: result.reference,
         ticketUrl: result.ticketUrl,
+        expiresAt,
         amount: 200.00,
         environment: 'test',
         idempotencyKey: '[internal]',
@@ -85,6 +88,10 @@ export async function POST(request: NextRequest) {
       orderId: result.orderId,
       status: result.status,
       statusDetail: result.statusDetail,
+      paymentId: result.paymentId,
+      reference: result.reference,
+      ticketUrl: result.ticketUrl,
+      expiresAt: result.expiresAt,
       hasTicketUrl: !!result.ticketUrl,
       hasReference: !!result.reference,
     });

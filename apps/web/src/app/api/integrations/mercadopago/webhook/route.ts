@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    const xRequestId = request.headers.get('x-request-id') || '';
     const signatureHeader = request.headers.get('x-signature') || '';
     const body = await request.json();
     const payload = body as MercadoPagoWebhookPayload;
@@ -21,29 +22,41 @@ export async function POST(request: NextRequest) {
       ? verifySignature(payload.id || resourceId, signatureHeader)
       : false;
 
+    const signatureError = signatureHeader && !signatureValid ? 'Firma inválida' : null;
+
+    let duplicate = false;
+    if (xRequestId) {
+      const existing = await prisma.mercadoPagoWebhookEvent.findFirst({
+        where: { xRequestId },
+      });
+      duplicate = !!existing;
+    }
+
     await prisma.mercadoPagoWebhookEvent.create({
       data: {
         orderId: resourceId,
         topic,
         resource: resourceId,
         action: payload.action,
+        xRequestId: xRequestId || undefined,
         signatureValid,
+        signatureError,
+        duplicate,
         rawPayload: JSON.parse(JSON.stringify(payload)),
-        processed: false,
       },
     });
 
-    if (topic.startsWith('order') || topic.startsWith('payment')) {
+    if (!duplicate && (topic.startsWith('order') || topic.startsWith('payment'))) {
       try {
         await processOrderNotification(resourceId);
         await prisma.mercadoPagoWebhookEvent.updateMany({
-          where: { resource: resourceId, processed: false },
-          data: { processed: true },
+          where: { resource: resourceId, duplicate: false, processed: false },
+          data: { processed: true, processResult: 'OK' },
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
         await prisma.mercadoPagoWebhookEvent.updateMany({
-          where: { resource: resourceId, processed: false },
+          where: { resource: resourceId, duplicate: false, processed: false },
           data: { processError: message },
         });
       }
@@ -62,6 +75,5 @@ export async function GET(request: NextRequest) {
     const challenge = request.nextUrl.searchParams.get('hub.challenge');
     return new NextResponse(challenge, { status: 200 });
   }
-
   return NextResponse.json({ error: 'Método no soportado' }, { status: 405 });
 }

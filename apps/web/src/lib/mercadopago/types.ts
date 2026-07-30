@@ -3,6 +3,7 @@ export interface MercadoPagoCreateOrderParams {
   totalAmount: string;
   payerEmail: string;
   payerName: string;
+  isPilot?: boolean;
 }
 
 export interface MercadoPagoPayment {
@@ -23,6 +24,8 @@ export interface MercadoPagoOrderResponse {
   status_detail: string;
   external_reference: string;
   total_amount: string;
+  date_created?: string;
+  date_expiration?: string;
   transactions: {
     payments: MercadoPagoPayment[];
   };
@@ -36,5 +39,6 @@ export interface CreateSpeiOrderResult {
   paymentId?: string;
   reference?: string;
   ticketUrl?: string;
+  expiresAt?: string;
   error?: string;
 }
