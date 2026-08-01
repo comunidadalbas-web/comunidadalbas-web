@@ -1,6 +1,5 @@
 # Pendientes
 
-1. Aplicar pagos confirmados a adeudos con transacción e idempotencia cuando existan unidades/cargos vinculables.
-2. Validar panel completo en preview y producción.
-3. Resolver TLS de `www`.
-4. Promover y verificar despliegue.
+1. Revisar y aprobar manualmente cuáles de las cinco campañas deben activarse; permanecen deliberadamente como borradores.
+2. Verificar la vigencia jurídica de la ley aportada antes de autorizar su publicación; el registro está marcado «vigencia por verificar».
+3. Mantener futuras URLs privadas/restringidas detrás de un control de acceso externo; Blob público sólo se usa para material destinado a publicación.

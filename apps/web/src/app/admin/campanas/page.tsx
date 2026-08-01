@@ -21,6 +21,8 @@ export default async function CampaignsPage() {
     id: c.id,
     title: c.title,
     description: c.description,
+    imageUrl: c.imageUrl,
+    imageAlt: c.imageAlt,
     goalAmount: c.goalAmount?.toString() ?? null,
     collectedAmount: c.collectedAmount.toString(),
     status: c.status,

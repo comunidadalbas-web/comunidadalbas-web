@@ -31,6 +31,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     data: {
       ...(data.title !== undefined && { title: data.title.trim() }),
       ...(data.description !== undefined && { description: data.description.trim() }),
+      ...(data.imageUrl !== undefined && { imageUrl: data.imageUrl || null }),
+      ...(data.imageAlt !== undefined && { imageAlt: data.imageAlt?.trim() || null }),
       ...(data.goalAmount !== undefined && { goalAmount: data.goalAmount }),
       ...(data.collectedAmount !== undefined && { collectedAmount: data.collectedAmount }),
       ...(data.status !== undefined && { status: data.status }),

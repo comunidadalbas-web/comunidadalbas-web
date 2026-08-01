@@ -10,6 +10,8 @@ export const announcementSchema = z.object({
 export const campaignSchema = z.object({
   title: z.string().min(1, 'El título es obligatorio').max(200),
   description: z.string().min(1, 'La descripción es obligatoria').max(10000),
+  imageUrl: z.string().url('URL de imagen inválida').max(1000).optional().or(z.literal('').transform(() => undefined)),
+  imageAlt: z.string().max(240, 'El texto alternativo es demasiado largo').optional(),
   goalAmount: z.coerce.number().positive('El objetivo debe ser mayor a cero').max(999999999).optional(),
   collectedAmount: z.coerce.number().min(0).max(999999999).optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED']),
@@ -38,6 +40,7 @@ export const blogPostSchema = z.object({
   summary: z.string().max(500).optional(),
   content: z.string().min(1, 'El contenido es obligatorio').max(50000),
   coverImageUrl: z.string().url('URL de imagen inválida').max(500).optional().or(z.literal('').transform(() => undefined)),
+  coverImageAlt: z.string().max(240, 'El texto alternativo es demasiado largo').optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
 });
 

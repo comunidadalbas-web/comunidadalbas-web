@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import FileUploadField from '@/components/admin/file-upload-field';
 
 interface BlogPost {
   id: string;
@@ -9,6 +10,7 @@ interface BlogPost {
   summary: string | null;
   content: string;
   coverImageUrl: string | null;
+  coverImageAlt: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   authorName: string;
   publishedAt: string | null;
@@ -50,13 +52,14 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
     summary: '',
     content: '',
     coverImageUrl: '',
+    coverImageAlt: '',
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const resetForm = () => {
-    setForm({ title: '', slug: '', slugTouched: false, summary: '', content: '', coverImageUrl: '', status: 'DRAFT' });
+    setForm({ title: '', slug: '', slugTouched: false, summary: '', content: '', coverImageUrl: '', coverImageAlt: '', status: 'DRAFT' });
     setEditing(null);
     setShowForm(false);
     setError('');
@@ -76,6 +79,7 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
       summary: p.summary ?? '',
       content: p.content,
       coverImageUrl: p.coverImageUrl ?? '',
+      coverImageAlt: p.coverImageAlt ?? '',
       status: p.status,
     });
     setShowForm(true);
@@ -108,6 +112,7 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
           summary: form.summary,
           content: form.content,
           coverImageUrl: form.coverImageUrl,
+          coverImageAlt: form.coverImageAlt,
           status: form.status,
         }),
       });
@@ -123,9 +128,10 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
         summary: data.item.summary ?? null,
         content: data.item.content,
         coverImageUrl: data.item.coverImageUrl ?? null,
+        coverImageAlt: data.item.coverImageAlt ?? null,
         status: data.item.status,
         authorName: editing ? editing.authorName : (data.item.authorName ?? ''),
-        publishedAt: data.item.publishedAt?.toISOString() ?? null,
+        publishedAt: data.item.publishedAt ?? null,
         createdAt: editing ? editing.createdAt : new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -237,7 +243,7 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">URL de imagen de portada</label>
+            <label className="form-label">URL de imagen de portada (alternativa)</label>
             <input
               className="form-input"
               value={form.coverImageUrl}
@@ -245,6 +251,25 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
               maxLength={500}
               placeholder="https://..."
             />
+            <small className="form-help">Puedes pegar una URL HTTPS existente o cargar una imagen desde tu equipo.</small>
+          </div>
+          <FileUploadField
+            kind="image"
+            label="Cargar imagen de portada"
+            value={form.coverImageUrl}
+            csrfToken={csrfToken}
+            onUploaded={(file) => setForm((current) => ({ ...current, coverImageUrl: file.url }))}
+          />
+          <div className="form-group">
+            <label className="form-label">Descripción accesible de la imagen</label>
+            <input
+              className="form-input"
+              value={form.coverImageAlt}
+              onChange={(e) => setForm((current) => ({ ...current, coverImageAlt: e.target.value }))}
+              maxLength={240}
+              placeholder="Ejemplo: Vecinas y vecinos participando en una jornada comunitaria"
+            />
+            <small className="form-help">Describe brevemente lo que muestra la imagen para personas que usan lectores de pantalla.</small>
           </div>
           <div className="form-group">
             <label className="form-label">Estado</label>

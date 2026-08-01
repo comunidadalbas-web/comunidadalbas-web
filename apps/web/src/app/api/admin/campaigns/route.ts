@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
     data: {
       title: data.title.trim(),
       description: data.description.trim(),
+      imageUrl: data.imageUrl || null,
+      imageAlt: data.imageAlt?.trim() || null,
       goalAmount: data.goalAmount ?? null,
       collectedAmount: data.collectedAmount ?? 0,
       status: data.status,

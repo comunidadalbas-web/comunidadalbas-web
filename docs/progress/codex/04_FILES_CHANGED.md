@@ -16,7 +16,14 @@
 - `apps/web/e2e/admin-mutations.spec.ts`
 - `apps/web/vitest.config.ts`
 - `.env.example`
+- `apps/web/src/components/admin/file-upload-field.tsx`
+- `apps/web/src/app/api/admin/uploads/route.ts`
+- `apps/web/src/app/admin/{blog,campanas,documentos}/*`
+- `apps/web/src/app/{blog,campanas,privacidad}/*`
+- `apps/web/src/lib/cms/validation.ts`
+- `apps/web/next.config.ts`
+- `packages/db/prisma/migrations/20260801223000_cms_media/migration.sql`
 - `docs/audit/2026-08-01-codex/*`
 - `docs/progress/codex/*`
 
-Los demás archivos modificados/nuevos ya estaban presentes al inicio.
+Los scripts no versionados `packages/db/scripts/inspect-tables*.cjs` ya estaban presentes y no pertenecen a esta entrega.

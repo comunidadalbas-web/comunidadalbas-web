@@ -29,6 +29,21 @@ export default async function CampanasPage() {
           const pct = goal > 0 ? Math.min(100, Math.round((collected / goal) * 100)) : 0;
           return (
             <article key={c.id} className="card" style={{ marginBottom: '1rem' }}>
+              {c.imageUrl && (
+                <img
+                  src={c.imageUrl}
+                  alt={c.imageAlt || c.title}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    maxHeight: '720px',
+                    objectFit: 'contain',
+                    borderRadius: 'var(--radius, 8px)',
+                    background: '#f4f7fb',
+                    marginBottom: '1rem',
+                  }}
+                />
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem', flexWrap: 'wrap' }}>
                 <h2 style={{ fontSize: '1.15rem' }}>{c.title}</h2>
                 <span className={`badge ${c.status === 'ACTIVE' ? 'badge-resolved' : 'badge-new'}`}>

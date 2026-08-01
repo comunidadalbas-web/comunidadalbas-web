@@ -51,7 +51,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       {post.coverImageUrl && (
         <img
           src={post.coverImageUrl}
-          alt={post.title}
+          alt={post.coverImageAlt || post.title}
           style={{ width: '100%', maxHeight: '340px', objectFit: 'cover', borderRadius: 'var(--radius, 8px)', marginBottom: '1.5rem' }}
         />
       )}

@@ -54,6 +54,19 @@ describe('cms/campaign', () => {
     });
     expect(r.success).toBe(true);
   });
+
+  it('acepta imagen y texto alternativo válidos', () => {
+    const r = campaignSchema.safeParse({
+      ...valid,
+      imageUrl: 'https://example.com/campana.webp',
+      imageAlt: 'Cartel de campaña comunitaria',
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it('rechaza una URL de imagen inválida', () => {
+    expect(campaignSchema.safeParse({ ...valid, imageUrl: 'archivo-local.png' }).success).toBe(false);
+  });
 });
 
 describe('cms/calendarEvent', () => {

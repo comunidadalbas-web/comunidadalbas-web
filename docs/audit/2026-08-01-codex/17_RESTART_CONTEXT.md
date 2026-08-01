@@ -14,4 +14,4 @@ pnpm build
 pnpm --filter @comunidad-albas/db exec prisma validate
 ```
 
-Neon tiene tres migraciones al día. No usar `db push`, no generar pagos reales para pruebas y no rotar secretos sin autorización. Cargar edificios/departamentos reales antes de operar cargos. El despliegue `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe` queda sólo como rollback.
+Neon tiene cuatro migraciones al día. No usar `db push`, no generar pagos reales para pruebas y no rotar secretos sin autorización. Cargar edificios/departamentos reales antes de operar cargos. Cinco campañas están en borrador y tres documentos son públicos/no aprobados. El despliegue `dpl_5qJDZGnY3Ms7Zjxw3eNjrWdVoc6V` queda como rollback anterior a medios.

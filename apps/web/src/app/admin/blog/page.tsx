@@ -28,6 +28,7 @@ export default async function BlogAdminPage() {
     summary: p.summary,
     content: p.content,
     coverImageUrl: p.coverImageUrl,
+    coverImageAlt: p.coverImageAlt,
     status: p.status,
     authorName: p.author.displayName,
     publishedAt: p.publishedAt?.toISOString() ?? null,

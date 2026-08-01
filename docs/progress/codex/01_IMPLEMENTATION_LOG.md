@@ -18,3 +18,11 @@
 - Problema: `CSRF_SECRET` estaba documentado pero no se usaba.
 - Solución: firma CSRF con secreto independiente y configuración de test.
 - Prueba: 10 casos de autenticación y typecheck aprobados.
+
+## Bloque CMS: medios, documentos y privacidad
+
+- Blog y campañas aceptan imágenes JPG, PNG o WebP, conservan URL HTTPS como alternativa y muestran vista previa antes de guardar.
+- La transferencia usa Vercel Blob con autorización de sesión, rol y CSRF; límite de 8 MB para imágenes y 25 MB para PDF.
+- Documentos públicos aceptan carga directa, completan URL y SHA-256; los restringidos/privados exigen una URL con control de acceso externo.
+- Se incorporó un aviso integral de privacidad del sitio bajo la identidad operativa «Comunidad Albas», sin atribuirle carácter de asociación civil.
+- Cinco carteles quedaron precargados como borradores y tres fuentes normativas como públicas/no aprobadas; no aparecen hasta su aprobación.

@@ -33,7 +33,7 @@ export default async function BlogPage() {
                 {p.coverImageUrl && (
                   <img
                     src={p.coverImageUrl}
-                    alt={p.title}
+                    alt={p.coverImageAlt || p.title}
                     style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: 'var(--radius, 8px) 8px 0 0', marginBottom: '0.75rem' }}
                   />
                 )}

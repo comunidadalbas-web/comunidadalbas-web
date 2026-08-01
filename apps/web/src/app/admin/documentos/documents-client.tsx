@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { DOCUMENT_VISIBILITIES } from '@/lib/finance/validation';
+import FileUploadField from '@/components/admin/file-upload-field';
 
 type Visibility = (typeof DOCUMENT_VISIBILITIES)[number];
 interface DocumentItem {
@@ -101,8 +102,21 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
         </div>
       )}
       <div className="alert alert-info">
-        Los archivos se alojan en una URL HTTPS institucional; el SHA-256 permite verificar que no
-        fueron sustituidos. Sólo los documentos aprobados y públicos aparecen en el sitio.
+        <strong>Cómo funciona:</strong> carga un PDF público desde tu equipo o pega una URL HTTPS
+        institucional. Al cargarlo, el sistema completa la URL y calcula automáticamente la huella
+        SHA-256. El documento sólo aparece en <code>/documentos</code> cuando su visibilidad es
+        <strong> Público</strong> y marcas la aprobación.
+      </div>
+      <div className="card" style={{ marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: '1rem', marginBottom: '.6rem' }}>Qué significa cada campo</h2>
+        <ul style={{ marginLeft: '1.25rem', lineHeight: 1.6 }}>
+          <li><strong>Título:</strong> nombre claro que verá la comunidad.</li>
+          <li><strong>Categoría:</strong> agrupa documentos, por ejemplo Normativa, Institucional o Transparencia.</li>
+          <li><strong>Versión:</strong> identifica la edición; usa 1.0 si es la primera publicada.</li>
+          <li><strong>Público:</strong> puede mostrarse en el sitio al aprobarlo.</li>
+          <li><strong>Restringido o privado:</strong> sólo se registra en el panel; la URL externa debe tener su propio control de acceso.</li>
+          <li><strong>SHA-256:</strong> huella digital de 64 caracteres que permite detectar si el archivo fue sustituido.</li>
+        </ul>
       </div>
       <button
         className="btn btn-primary"
@@ -156,6 +170,27 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
               </select>
             </label>
           </div>
+          {form.visibility === 'PUBLIC' ? (
+            <FileUploadField
+              kind="document"
+              label="Cargar PDF desde este equipo"
+              value={form.fileUrl}
+              csrfToken={csrfToken}
+              help="PDF público, máximo 25 MB. La carga no lo publica por sí sola: todavía debes guardar y aprobar el registro. No cargues información confidencial."
+              onUploaded={(file) =>
+                setForm((current) => ({
+                  ...current,
+                  fileUrl: file.url,
+                  sha256: file.sha256 ?? current.sha256,
+                }))
+              }
+            />
+          ) : (
+            <div className="alert alert-warning" style={{ marginBottom: '1rem' }}>
+              La carga directa está reservada a PDFs públicos. Para un documento privado o
+              restringido, pega una URL HTTPS que ya aplique autenticación o control de acceso.
+            </div>
+          )}
           <label className="form-group">
             <span className="form-label">URL HTTPS del archivo *</span>
             <input
@@ -164,6 +199,7 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
               value={form.fileUrl}
               onChange={(e) => setForm({ ...form, fileUrl: e.target.value })}
             />
+            <small className="form-help">Se completa automáticamente al cargar un PDF; también puedes pegar una URL institucional existente.</small>
           </label>
           <label className="form-group">
             <span className="form-label">SHA-256 *</span>
@@ -173,6 +209,7 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
               maxLength={64}
               onChange={(e) => setForm({ ...form, sha256: e.target.value.toLowerCase() })}
             />
+            <small className="form-help">Se calcula automáticamente al cargar. Si usas una URL externa, obtén la huella del archivo original antes de registrarlo.</small>
           </label>
           <label className="form-checkbox">
             <input

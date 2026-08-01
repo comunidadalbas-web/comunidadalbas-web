@@ -9,4 +9,10 @@
 - `.env.example` documenta variables de Mercado Pago y administración sin valores reales.
 - Paquete de auditoría y progreso creado.
 
-No se modificó producción, Neon, DNS, cuentas, planes ni credenciales.
+## Ampliación CMS posterior
+
+- Se agregaron imágenes administradas a Blog y Campañas, carga segura a Vercel Blob y vistas previas.
+- Se agregó carga PDF pública con URL y SHA-256 automáticos; los aportados quedaron no aprobados y fuera del sitio público.
+- Se añadió la cuarta migración Prisma para metadatos de imagen y se aplicó en Neon.
+- Se publicó el aviso integral de privacidad del sitio y se precargaron, sin publicar, cinco campañas y tres fuentes normativas públicas/no aprobadas.
+- Producción se actualizó sin cambios de DNS, cuentas o planes; ningún secreto fue incorporado al código.

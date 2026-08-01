@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import FileUploadField from '@/components/admin/file-upload-field';
 
 type Status = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
@@ -8,6 +9,8 @@ interface Campana {
   id: string;
   title: string;
   description: string;
+  imageUrl: string | null;
+  imageAlt: string | null;
   goalAmount: string | null;
   collectedAmount: string;
   status: Status;
@@ -39,6 +42,8 @@ interface Props {
 const emptyForm = {
   title: '',
   description: '',
+  imageUrl: '',
+  imageAlt: '',
   goalAmount: '',
   status: 'DRAFT' as Status,
   startsAt: '',
@@ -70,6 +75,8 @@ export default function CampaignsClient({ items, total, csrfToken }: Props) {
     setForm({
       title: item.title,
       description: item.description,
+      imageUrl: item.imageUrl ?? '',
+      imageAlt: item.imageAlt ?? '',
       goalAmount: item.goalAmount ?? '',
       status: item.status,
       startsAt: item.startsAt ? item.startsAt.slice(0, 10) : '',
@@ -90,6 +97,8 @@ export default function CampaignsClient({ items, total, csrfToken }: Props) {
       const payload = {
         title: form.title,
         description: form.description,
+        imageUrl: form.imageUrl,
+        imageAlt: form.imageAlt,
         goalAmount: form.goalAmount ? Number(form.goalAmount) : undefined,
         status: form.status,
         startsAt: form.startsAt ? new Date(form.startsAt + 'T12:00:00Z').toISOString() : null,
@@ -161,6 +170,35 @@ export default function CampaignsClient({ items, total, csrfToken }: Props) {
             <label className="form-label">Descripción *</label>
             <textarea className="form-textarea" rows={4} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} maxLength={10000} />
           </div>
+          <div className="form-group">
+            <label className="form-label">URL de imagen (alternativa)</label>
+            <input
+              className="form-input"
+              type="url"
+              value={form.imageUrl}
+              onChange={(e) => setForm((current) => ({ ...current, imageUrl: e.target.value }))}
+              maxLength={1000}
+              placeholder="https://..."
+            />
+            <small className="form-help">Puedes pegar una URL HTTPS existente o cargar una imagen desde tu equipo.</small>
+          </div>
+          <FileUploadField
+            kind="image"
+            label="Cargar imagen de campaña"
+            value={form.imageUrl}
+            csrfToken={csrfToken}
+            onUploaded={(file) => setForm((current) => ({ ...current, imageUrl: file.url }))}
+          />
+          <div className="form-group">
+            <label className="form-label">Descripción accesible de la imagen</label>
+            <input
+              className="form-input"
+              value={form.imageAlt}
+              onChange={(e) => setForm((current) => ({ ...current, imageAlt: e.target.value }))}
+              maxLength={240}
+              placeholder="Ejemplo: Cartel informativo sobre la cuota mensual"
+            />
+          </div>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <div className="form-group" style={{ flex: 1 }}>
               <label className="form-label">Meta (MXN)</label>
@@ -195,7 +233,7 @@ export default function CampaignsClient({ items, total, csrfToken }: Props) {
         </div>
       )}
 
-      {total === 0 ? (
+      {rows.length === 0 ? (
         <div className="alert alert-info">No hay campañas registradas.</div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
@@ -213,6 +251,13 @@ export default function CampaignsClient({ items, total, csrfToken }: Props) {
               {rows.map((c) => (
                 <tr key={c.id}>
                   <td>
+                    {c.imageUrl && (
+                      <img
+                        src={c.imageUrl}
+                        alt=""
+                        style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 8, float: 'left', marginRight: '.75rem' }}
+                      />
+                    )}
                     <strong>{c.title}</strong>
                     <br />
                     <span className="text-muted" style={{ fontSize: '0.8rem' }}>

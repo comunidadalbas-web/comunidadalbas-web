@@ -71,6 +71,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       ...(data.summary !== undefined && { summary: data.summary?.trim() || null }),
       ...(data.content !== undefined && { content: data.content.trim() }),
       ...(data.coverImageUrl !== undefined && { coverImageUrl: data.coverImageUrl || null }),
+      ...(data.coverImageAlt !== undefined && { coverImageAlt: data.coverImageAlt?.trim() || null }),
       ...(data.status !== undefined && { status: data.status }),
       ...(publishedAt !== undefined && { publishedAt }),
     },
