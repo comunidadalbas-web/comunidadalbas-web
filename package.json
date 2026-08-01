@@ -18,6 +18,7 @@
     "db:migrate": "pnpm --filter @comunidad-albas/db migrate",
     "db:push": "pnpm --filter @comunidad-albas/db push",
     "db:studio": "pnpm --filter @comunidad-albas/db studio",
+    "db:seed-admin": "pnpm --filter @comunidad-albas/db seed:admin",
     "test": "pnpm --filter @comunidad-albas/web test",
     "test:e2e": "pnpm --filter @comunidad-albas/web test:e2e",
     "ci": "pnpm typecheck && pnpm test && pnpm build"

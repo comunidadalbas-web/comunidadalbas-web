@@ -8,6 +8,9 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['src/**/*.test.{ts,tsx}'],
+    env: {
+      SESSION_SECRET: 'test-session-secret-for-unit-tests-only-0123456789',
+    },
   },
   resolve: {
     alias: {

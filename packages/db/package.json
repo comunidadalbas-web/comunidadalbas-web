@@ -14,7 +14,8 @@
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
     "push": "prisma db push",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "seed:admin": "node --experimental-strip-types scripts/seed-admin.mts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
