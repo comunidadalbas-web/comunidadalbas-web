@@ -7,10 +7,13 @@ import { useState } from 'react';
 const NAV_ITEMS = [
   { href: '/admin', label: 'Panel' },
   { href: '/admin/solicitudes', label: 'Solicitudes' },
+  { href: '/admin/comunicados', label: 'Comunicados' },
+  { href: '/admin/campanas', label: 'Campañas' },
+  { href: '/admin/calendario', label: 'Calendario' },
   { href: '/admin/unidades', label: 'Unidades' },
+  { href: '/admin/documentos', label: 'Documentos' },
   { href: '/admin/pagos', label: 'Pagos' },
   { href: '/admin/egresos', label: 'Egresos' },
-  { href: '/admin/integraciones/mercadopago/piloto-real', label: 'Piloto MP' },
 ];
 
 export default function AdminNav({

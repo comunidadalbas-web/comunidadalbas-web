@@ -43,6 +43,25 @@ enum ContactRequestStatus {
   ARCHIVED
 }
 
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum CalendarEventStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
 model Building {
   id        String       @id @default(cuid())
   code      String       @unique
@@ -143,6 +162,45 @@ model Document {
   sha256     String
   approvedAt DateTime?
   createdAt  DateTime   @default(now())
+}
+
+model Announcement {
+  id          String             @id @default(cuid())
+  title       String
+  body        String
+  category    String
+  status      AnnouncementStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model Campaign {
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  goalAmount   Decimal?       @db.Decimal(12, 2)
+  collectedAmount Decimal     @default(0) @db.Decimal(12, 2)
+  status       CampaignStatus @default(DRAFT)
+  startsAt     DateTime?
+  endsAt       DateTime?
+  createdById  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model CalendarEvent {
+  id          String             @id @default(cuid())
+  title       String
+  description String?
+  location    String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  status      CalendarEventStatus @default(SCHEDULED)
+  createdById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 }
 
 model User {

@@ -36,6 +36,8 @@ function Header() {
         <nav className="main-nav">
           <a href="/">Inicio</a>
           <a href="/nosotros">Nosotros</a>
+          <a href="/comunicados">Comunicados</a>
+          <a href="/calendario">Calendario</a>
           <a href="/documentos">Documentos</a>
           <a href="/pagos">Pagos</a>
           <a href="/contacto">Contacto</a>
@@ -68,6 +70,15 @@ function Footer() {
         <div className="footer-section">
           <h3>Portal</h3>
           <p>comunidadalbas.com.mx</p>
+          <p>
+            <a href="/comunicados">Comunicados</a>
+          </p>
+          <p>
+            <a href="/campanas">Campañas</a>
+          </p>
+          <p>
+            <a href="/calendario">Calendario</a>
+          </p>
           <p>
             <a href="/pagos">Pagos en línea</a>
           </p>
