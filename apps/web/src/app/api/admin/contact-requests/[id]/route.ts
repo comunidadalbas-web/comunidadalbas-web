@@ -42,5 +42,20 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     after: { status: updated.status, folio: updated.folio },
   });
 
+  if (updated.status !== existing.status && updated.email && updated.folio) {
+    try {
+      const { sendSolicitudStatusChange } = await import('@/lib/email/notifications');
+      await sendSolicitudStatusChange({
+        to: updated.email,
+        name: updated.name,
+        folio: updated.folio,
+        status: updated.status,
+        category: updated.category,
+      });
+    } catch {
+      // Notification failure is non-blocking
+    }
+  }
+
   return NextResponse.json({ success: true, item: updated });
 }

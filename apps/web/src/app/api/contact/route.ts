@@ -89,23 +89,29 @@ export async function POST(request: NextRequest) {
     contactRequest = await prisma.contactRequest.findUniqueOrThrow({ where: { id: contactRequest.id } });
 
     try {
-      const { createEmailAdapter } = await import('@/lib/email');
-      const email = createEmailAdapter();
-      const result = await email.send({
-        to: process.env.CONTACT_NOTIFICATION_EMAIL || 'contacto@comunidadalbas.com.mx',
-        subject: `Nuevo contacto: ${sanitized.category} - ${sanitized.name}`,
-        text: [
-          `Nombre: ${sanitized.name}`,
-          `Correo: ${sanitized.email}`,
-          `Teléfono: ${sanitized.phone || 'No proporcionado'}`,
-          `Edificio: ${sanitized.building || 'No especificado'}`,
-          `Departamento: ${sanitized.apartment || 'No especificado'}`,
-          `Categoría: ${sanitized.category}`,
-          `Mensaje: ${sanitized.message}`,
-        ].join('\n'),
-      });
+      const { sendContactConfirmation, sendContactAdminNotification } = await import('@/lib/email/notifications');
+      const adminTo = process.env.CONTACT_NOTIFICATION_EMAIL || 'contacto@comunidadalbas.com.mx';
+      const [adminResult, citizenResult] = await Promise.all([
+        sendContactAdminNotification({
+          to: adminTo,
+          name: sanitized.name,
+          email: sanitized.email,
+          phone: sanitized.phone || null,
+          building: sanitized.building || null,
+          apartment: sanitized.apartment || null,
+          category: sanitized.category,
+          message: sanitized.message,
+          folio: contactRequest.folio,
+        }),
+        sendContactConfirmation({
+          to: sanitized.email,
+          name: sanitized.name,
+          folio: contactRequest.folio ?? '',
+          category: sanitized.category,
+        }),
+      ]);
 
-      if (result.success) {
+      if (adminResult.success || citizenResult.success) {
         await prisma.contactRequest.update({
           where: { id: contactRequest.id },
           data: { notifiedAt: new Date() },

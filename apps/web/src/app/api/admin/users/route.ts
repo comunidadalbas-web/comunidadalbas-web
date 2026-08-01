@@ -79,5 +79,16 @@ export async function POST(request: NextRequest) {
     after: { email: normalizedEmail, roles },
   });
 
+  try {
+    const { sendUserWelcome } = await import('@/lib/email/notifications');
+    await sendUserWelcome({
+      to: normalizedEmail,
+      displayName: displayName.trim(),
+      roles,
+    });
+  } catch {
+    // Welcome email failure is non-blocking
+  }
+
   return NextResponse.json({ success: true, item: { id: user.id, email: normalizedEmail } }, { status: 201 });
 }
