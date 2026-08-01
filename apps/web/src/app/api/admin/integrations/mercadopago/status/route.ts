@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
           duplicate: lastWebhook.duplicate,
           processed: lastWebhook.processed,
           processResult: lastWebhook.processResult,
+          processError: lastWebhook.processError,
           createdAt: lastWebhook.createdAt,
         }
       : null,
@@ -50,6 +51,9 @@ export async function GET(request: NextRequest) {
     isProduction: env === 'production',
     pilotEnabled: process.env.PAYMENTS_PILOT_ENABLED === 'true',
     pilotAmount: process.env.PILOT_PAYMENT_AMOUNT || '200.00',
+    paymentsEnabled: process.env.PAYMENTS_ENABLED === 'true' && env === 'production',
+    cuotaAmount: process.env.PAYMENTS_CUOTA_AMOUNT || '100.00',
+    maxExtraordinaryAmount: process.env.PAYMENTS_MAX_EXTRAORDINARY || '10000.00',
     allowedEmails: (process.env.PAYMENTS_ALLOWED_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean),
   });
 }

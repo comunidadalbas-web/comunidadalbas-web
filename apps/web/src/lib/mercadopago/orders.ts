@@ -1,5 +1,14 @@
 import { randomUUID } from 'crypto';
-import type { MercadoPagoCreateOrderParams, MercadoPagoOrderResponse, CreateSpeiOrderResult } from './types';
+import type {
+  MercadoPagoCreateOrderParams,
+  MercadoPagoOrderResponse,
+  CreateSpeiOrderResult,
+  MercadoPagoPreference,
+  CreateCheckoutPreferenceParams,
+  CreateCheckoutPreferenceResult,
+  MercadoPagoPaymentStatusResponse,
+  GetPaymentStatusResult,
+} from './types';
 
 const BASE_URL = 'https://api.mercadopago.com/v1';
 
@@ -37,7 +46,8 @@ async function mpFetch<T>(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {
-    const res = await fetch(`${BASE_URL}${path}`, { ...options, headers, signal: controller.signal });
+    const url = path.startsWith('http') ? path : `${BASE_URL}${path}`;
+    const res = await fetch(url, { ...options, headers, signal: controller.signal });
     if (!res.ok) {
       const body = await res.text();
       console.error('MP API error', sanitizeForLog({ status: res.status, body }));
@@ -105,6 +115,73 @@ export async function getOrderById(orderId: string): Promise<CreateSpeiOrderResu
       paymentId: payment?.id?.toString(),
       reference: paymentMethod?.reference,
       ticketUrl: paymentMethod?.ticket_url,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Error desconocido';
+    return { success: false, error: message };
+  }
+}
+
+export async function createCheckoutPreference(
+  params: CreateCheckoutPreferenceParams,
+): Promise<CreateCheckoutPreferenceResult> {
+  const idempotencyKey = randomUUID();
+  try {
+    const body = {
+      items: [
+        {
+          title: params.itemTitle,
+          quantity: 1,
+          unit_price: parseFloat(params.totalAmount),
+          currency_id: 'MXN',
+        },
+      ],
+      payer: {
+        first_name: params.payerName,
+        email: params.payerEmail,
+      },
+      external_reference: params.externalReference,
+      back_urls: {
+        success: params.backUrlSuccess,
+        failure: params.backUrlFailure,
+        pending: params.backUrlPending,
+      },
+      auto_return: 'approved',
+      payment_methods: {
+        excluded_payment_types: [
+          { id: 'atm' },
+          { id: 'ticket' },
+        ],
+      },
+      notification_url: 'https://comunidadalbas.com.mx/api/integrations/mercadopago/webhook',
+    };
+    const preference = await mpFetch<MercadoPagoPreference>('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      idempotencyKey,
+    });
+    return {
+      success: true,
+      preferenceId: preference.id,
+      initPoint: preference.init_point,
+      externalReference: preference.external_reference,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Error desconocido';
+    console.error('createCheckoutPreference failed', sanitizeForLog({ error: message }));
+    return { success: false, error: message };
+  }
+}
+
+export async function getPaymentStatusById(paymentId: string): Promise<GetPaymentStatusResult> {
+  try {
+    const payment = await mpFetch<MercadoPagoPaymentStatusResponse>(`/payments/${paymentId}`);
+    return {
+      success: true,
+      paymentId: payment.id?.toString(),
+      status: payment.status,
+      statusDetail: payment.status_detail,
+      externalReference: payment.external_reference,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error desconocido';

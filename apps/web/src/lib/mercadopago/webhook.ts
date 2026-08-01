@@ -33,7 +33,8 @@ function parseSignatureHeader(header: string): { ts: string; v1: string } | null
 }
 
 export function verifySignature(
-  payloadId: string,
+  dataId: string,
+  xRequestId: string,
   signatureHeader: string,
 ): boolean {
   try {
@@ -41,8 +42,15 @@ export function verifySignature(
     if (!parsed) return false;
     const { ts, v1 } = parsed;
     const secret = getWebhookSecret();
-    const msg = `id:${payloadId};ts:${ts};`;
-    const computed = createHmac('sha256', secret).update(msg).digest('hex');
+
+    const normalizedDataId = /[a-zA-Z]/.test(dataId) ? dataId.toLowerCase() : dataId;
+
+    let manifest = '';
+    if (normalizedDataId) manifest += `id:${normalizedDataId};`;
+    if (xRequestId) manifest += `request-id:${xRequestId};`;
+    manifest += `ts:${ts};`;
+
+    const computed = createHmac('sha256', secret).update(manifest).digest('hex');
     if (computed.length !== v1.length) return false;
     return timingSafeEqual(Buffer.from(computed), Buffer.from(v1));
   } catch {
@@ -50,9 +58,30 @@ export function verifySignature(
   }
 }
 
-export async function processOrderNotification(resourceId: string): Promise<void> {
+export async function processOrderNotification(resourceId: string, topic = 'unknown'): Promise<void> {
   try {
-    const { getOrderById } = await import('./orders');
+    const { getOrderById, getPaymentStatusById } = await import('./orders');
+
+    if (topic.startsWith('payment')) {
+      const payment = await getPaymentStatusById(resourceId);
+      if (!payment.success || !payment.externalReference) return;
+
+      const order = await prisma.mercadoPagoOrder.findFirst({
+        where: { externalReference: payment.externalReference },
+      });
+      if (!order) return;
+
+      await prisma.mercadoPagoOrder.update({
+        where: { id: order.id },
+        data: {
+          status: payment.status ?? order.status,
+          statusDetail: payment.statusDetail ?? order.statusDetail,
+          paymentId: payment.paymentId ?? order.paymentId,
+        },
+      });
+      return;
+    }
+
     const result = await getOrderById(resourceId);
     if (!result.success || !result.orderId) return;
 

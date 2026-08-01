@@ -37,6 +37,7 @@ function Header() {
           <a href="/">Inicio</a>
           <a href="/nosotros">Nosotros</a>
           <a href="/documentos">Documentos</a>
+          <a href="/pagos">Pagos</a>
           <a href="/contacto">Contacto</a>
         </nav>
       </div>
@@ -67,7 +68,9 @@ function Footer() {
         <div className="footer-section">
           <h3>Portal</h3>
           <p>comunidadalbas.com.mx</p>
-          <p>En construcción</p>
+          <p>
+            <a href="/pagos">Pagos en línea</a>
+          </p>
         </div>
       </div>
       <div className="footer-bottom">

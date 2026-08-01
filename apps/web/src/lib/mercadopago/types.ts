@@ -42,3 +42,49 @@ export interface CreateSpeiOrderResult {
   expiresAt?: string;
   error?: string;
 }
+
+export interface MercadoPagoPreference {
+  id: string;
+  init_point: string;
+  external_reference: string;
+  date_expiration?: string;
+}
+
+export interface CreateCheckoutPreferenceParams {
+  externalReference: string;
+  totalAmount: string;
+  payerEmail: string;
+  payerName: string;
+  itemTitle: string;
+  backUrlSuccess: string;
+  backUrlFailure: string;
+  backUrlPending: string;
+  isPilot?: boolean;
+}
+
+export interface CreateCheckoutPreferenceResult {
+  success: boolean;
+  preferenceId?: string;
+  initPoint?: string;
+  externalReference?: string;
+  error?: string;
+}
+
+export interface MercadoPagoPaymentStatusResponse {
+  id: number;
+  status: string;
+  status_detail: string;
+  external_reference?: string;
+  date_approved?: string;
+  date_created?: string;
+  transaction_amount?: number;
+}
+
+export interface GetPaymentStatusResult {
+  success: boolean;
+  paymentId?: string;
+  status?: string;
+  statusDetail?: string;
+  externalReference?: string;
+  error?: string;
+}

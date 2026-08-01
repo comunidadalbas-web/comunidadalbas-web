@@ -7,7 +7,12 @@ export default function HomePage() {
           Estamos construyendo un espacio más organizado, transparente y conectado para todos.
         </p>
         <p style={{ fontSize: '1.1rem', color: 'var(--color-text-light)', marginBottom: '2rem' }}>
-          Muy pronto estaremos en línea.
+          Administración de privada Albas — pagos, documentos y comunicación en un solo lugar.
+        </p>
+        <p style={{ marginBottom: '2rem' }}>
+          <a href="/pagos" className="btn btn-primary" style={{ fontSize: '1.05rem', padding: '0.75rem 1.5rem' }}>
+            Pagar mi cuota en línea
+          </a>
         </p>
         <div className="hero-tagline">
           <span>Organización</span>
@@ -42,11 +47,14 @@ export default function HomePage() {
 
       <section className="info-section">
         <div className="alert alert-info">
-          <strong>Portal en construcción.</strong> Este sitio se encuentra en fase de desarrollo.
-          Próximamente estarán disponibles todos los módulos y servicios.
+          <strong>Pagos en línea activos.</strong> Ahora puedes pagar tu cuota condominal o una
+          aportación extraordinaria mediante transferencia SPEI a través de Mercado Pago.
         </div>
         <p>
-          <a href="/contacto" className="btn btn-primary">
+          <a href="/pagos" className="btn btn-primary">
+            Ir a pagos en línea
+          </a>
+          <a href="/contacto" className="btn btn-secondary" style={{ marginLeft: '0.75rem' }}>
             Contáctanos
           </a>
         </p>

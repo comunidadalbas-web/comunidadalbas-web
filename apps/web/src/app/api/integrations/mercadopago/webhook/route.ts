@@ -6,6 +6,7 @@ import type { MercadoPagoWebhookPayload } from '@/lib/mercadopago/webhook';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  let createdEventId: string | null = null;
   try {
     const xRequestId = request.headers.get('x-request-id') || '';
     const signatureHeader = request.headers.get('x-signature') || '';
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const signatureValid = signatureHeader
-      ? verifySignature(payload.id || resourceId, signatureHeader)
+      ? verifySignature(resourceId, xRequestId, signatureHeader)
       : false;
 
     const signatureError = signatureHeader && !signatureValid ? 'Firma inválida' : null;
@@ -32,9 +33,20 @@ export async function POST(request: NextRequest) {
       duplicate = !!existing;
     }
 
-    await prisma.mercadoPagoWebhookEvent.create({
+    let orderIdForEvent: string | null = null;
+    if (topic.startsWith('order')) {
+      orderIdForEvent = resourceId;
+    } else if (topic.startsWith('payment')) {
+      const order = await prisma.mercadoPagoOrder.findFirst({
+        where: { OR: [{ paymentId: resourceId }, { orderId: `PREF-${resourceId}` }] },
+        select: { orderId: true },
+      });
+      orderIdForEvent = order?.orderId ?? null;
+    }
+
+    const event = await prisma.mercadoPagoWebhookEvent.create({
       data: {
-        orderId: resourceId,
+        orderId: orderIdForEvent,
         topic,
         resource: resourceId,
         action: payload.action,
@@ -45,18 +57,20 @@ export async function POST(request: NextRequest) {
         rawPayload: JSON.parse(JSON.stringify(payload)),
       },
     });
+    createdEventId = event.id;
 
     if (!duplicate && (topic.startsWith('order') || topic.startsWith('payment'))) {
       try {
-        await processOrderNotification(resourceId);
-        await prisma.mercadoPagoWebhookEvent.updateMany({
-          where: { resource: resourceId, duplicate: false, processed: false },
+        await processOrderNotification(resourceId, topic);
+        await prisma.mercadoPagoWebhookEvent.update({
+          where: { id: event.id },
           data: { processed: true, processResult: 'OK' },
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        await prisma.mercadoPagoWebhookEvent.updateMany({
-          where: { resource: resourceId, duplicate: false, processed: false },
+        console.error('webhook process failed:', message);
+        await prisma.mercadoPagoWebhookEvent.update({
+          where: { id: event.id },
           data: { processError: message },
         });
       }
@@ -66,6 +80,12 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('webhook error:', message);
+    if (createdEventId) {
+      await prisma.mercadoPagoWebhookEvent.update({
+        where: { id: createdEventId },
+        data: { processError: `outer: ${message}` },
+      }).catch(() => {});
+    }
     return NextResponse.json({ received: true }, { status: 200 });
   }
 }

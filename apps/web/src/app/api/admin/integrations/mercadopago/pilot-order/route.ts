@@ -17,16 +17,36 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const body = await request.json().catch(() => ({}));
+    const allowed = (process.env.PAYMENTS_ALLOWED_EMAILS || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const payerEmail = typeof body.payerEmail === 'string'
+      ? body.payerEmail.trim().toLowerCase()
+      : (allowed[0] || '');
+
+    if (!payerEmail) {
+      return NextResponse.json({ error: 'No hay email permitido configurado' }, { status: 400 });
+    }
+
+    if (allowed.length > 0 && !allowed.includes(payerEmail)) {
+      return NextResponse.json({ error: 'Email no autorizado para el piloto' }, { status: 403 });
+    }
+
+    const payerName = typeof body.payerName === 'string' ? body.payerName.trim() : 'Piloto';
+
     const today = new Date().toISOString().slice(0, 10);
     const uuid = crypto.randomUUID().slice(0, 8);
-    const externalReference = `PILOTO-BORIS-${today}-${uuid}`;
+    const externalReference = `PILOTO-${today}-${uuid}`;
     const amount = process.env.PILOT_PAYMENT_AMOUNT || '200.00';
 
     const result = await createSpeiOrder({
       externalReference,
       totalAmount: amount,
-      payerEmail: 'test_user_mx@testuser.com',
-      payerName: 'Boris',
+      payerEmail,
+      payerName,
       isPilot: true,
     });
 

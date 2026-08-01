@@ -207,6 +207,12 @@ model MercadoPagoOrder {
   idempotencyKey           String
   isPilot                  Boolean  @default(false)
   excludeFromCommunityBalance Boolean @default(false)
+  feeConceptId             String?
+  feeConceptName           String?
+  payerName                String?
+  payerEmail               String?
+  building                 String?
+  apartment                String?
   rawResponse              Json?
   webhookEvents            MercadoPagoWebhookEvent[]
   createdAt                DateTime @default(now())
@@ -229,4 +235,11 @@ model MercadoPagoWebhookEvent {
   processResult      String?
   processError       String?
   createdAt          DateTime @default(now())
+}
+
+model RateLimitEntry {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+  @@index([key, createdAt])
 }

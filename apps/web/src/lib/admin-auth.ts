@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function requireAdmin(request: NextRequest): NextResponse | null {
-  if (process.env.MERCADOPAGO_ENV !== 'test') {
+  const env = process.env.MERCADOPAGO_ENV || 'test';
+  const pilotEnabled = process.env.PAYMENTS_PILOT_ENABLED === 'true';
+  if (env !== 'test' && !pilotEnabled) {
     return NextResponse.json(
-      { error: 'Solo disponible en entorno de pruebas' },
+      { error: 'Endpoint administrativo deshabilitado' },
       { status: 403 },
     );
   }
