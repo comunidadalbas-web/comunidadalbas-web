@@ -238,6 +238,7 @@ model AuditLog {
 
 model ContactRequest {
   id              String               @id @default(cuid())
+  folio           String?              @unique
   name            String
   email           String
   phone           String?

@@ -82,6 +82,9 @@ function Footer() {
           <p>
             <a href="/pagos">Pagos en línea</a>
           </p>
+          <p>
+            <a href="/solicitud">Consulta tu solicitud</a>
+          </p>
         </div>
       </div>
       <div className="footer-bottom">

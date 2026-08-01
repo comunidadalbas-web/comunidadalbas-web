@@ -14,6 +14,8 @@ const NAV_ITEMS = [
   { href: '/admin/documentos', label: 'Documentos' },
   { href: '/admin/pagos', label: 'Pagos' },
   { href: '/admin/egresos', label: 'Egresos' },
+  { href: '/admin/usuarios', label: 'Usuarios' },
+  { href: '/admin/auditoria', label: 'Auditoría' },
 ];
 
 export default function AdminNav({

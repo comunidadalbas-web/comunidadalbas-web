@@ -6,6 +6,7 @@ type Status = 'NEW' | 'IN_REVIEW' | 'RESOLVED' | 'ARCHIVED';
 
 interface Solicitud {
   id: string;
+  folio: string | null;
   name: string;
   email: string;
   phone: string | null;
@@ -88,6 +89,7 @@ export default function SolicitudesClient({
       <table className="table-admin">
         <thead>
           <tr>
+            <th>Folio</th>
             <th>Fecha</th>
             <th>Solicitante</th>
             <th>Unidad</th>
@@ -100,6 +102,7 @@ export default function SolicitudesClient({
         <tbody>
           {rows.map((r) => (
             <tr key={r.id}>
+              <td style={{ whiteSpace: 'nowrap', fontWeight: 600 }}>{r.folio || '—'}</td>
               <td style={{ whiteSpace: 'nowrap' }}>
                 {new Date(r.createdAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
               </td>

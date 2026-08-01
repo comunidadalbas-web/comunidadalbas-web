@@ -34,6 +34,7 @@ export default function ContactoPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [serverError, setServerError] = useState('');
+  const [folio, setFolio] = useState('');
   const honeypotRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -81,10 +82,12 @@ export default function ContactoPage() {
         body: JSON.stringify(formData),
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Error al enviar el mensaje');
+        const errData = await res.json();
+        throw new Error(errData.error || 'Error al enviar el mensaje');
       }
+      const data = await res.json();
       setStatus('success');
+      setFolio(data.folio || '');
       setFormData({
         name: '',
         email: '',
@@ -107,9 +110,20 @@ export default function ContactoPage() {
         <h1 className="page-title">Contacto</h1>
         <div className="alert alert-success">
           <strong>Mensaje enviado correctamente.</strong> Te responderemos a la brevedad.
+          {folio && (
+            <div style={{ marginTop: '0.75rem' }}>
+              Tu folio de solicitud es:{' '}
+              <strong style={{ letterSpacing: '0.03em' }}>{folio}</strong>
+              <div style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                Guárdalo para consultar el estado en{' '}
+                <a href="/solicitud">Consulta el estado de tu solicitud</a>.
+              </div>
+            </div>
+          )}
         </div>
         <p>
-          <a href="/" className="btn btn-primary">Volver al inicio</a>
+          <a href="/" className="btn btn-primary">Volver al inicio</a>{' '}
+          <a href="/solicitud" className="btn btn-ghost">Consultar estado</a>
         </p>
       </>
     );

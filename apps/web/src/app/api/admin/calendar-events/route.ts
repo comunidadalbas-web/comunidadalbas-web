@@ -43,5 +43,14 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
+  await writeAuditLog({
+    userId: guard.session.userId,
+    action: AUDIT_ACTIONS.EVENT_CREATE,
+    entityType: 'CalendarEvent',
+    entityId: item.id,
+    after: { title: item.title, status: item.status },
+  });
+
   return NextResponse.json({ success: true, item }, { status: 201 });
 }

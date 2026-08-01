@@ -32,5 +32,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     data: { status, notes: typeof body.notes === 'string' ? body.notes : existing.notes },
   });
 
+  const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
+  await writeAuditLog({
+    userId: guard.session.userId,
+    action: AUDIT_ACTIONS.CONTACT_STATUS_CHANGE,
+    entityType: 'ContactRequest',
+    entityId: id,
+    before: { status: existing.status },
+    after: { status: updated.status, folio: updated.folio },
+  });
+
   return NextResponse.json({ success: true, item: updated });
 }

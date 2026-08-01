@@ -19,6 +19,7 @@ export default async function SolicitudesPage() {
 
   const serialized = items.map((item) => ({
     id: item.id,
+    folio: item.folio,
     name: item.name,
     email: item.email,
     phone: item.phone,

@@ -64,6 +64,15 @@ export async function POST(request: NextRequest) {
     data: { lastLoginAt: new Date() },
   });
 
+  const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
+  await writeAuditLog({
+    userId: user.id,
+    action: AUDIT_ACTIONS.LOGIN,
+    entityType: 'User',
+    entityId: user.id,
+    after: { email: user.email },
+  });
+
   const roles = (await prisma.roleAssignment.findMany({ where: { userId: user.id } })).map((r) => r.role);
 
   const payload = {

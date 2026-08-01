@@ -39,6 +39,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     },
   });
 
+  const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
+  await writeAuditLog({
+    userId: guard.session.userId,
+    action: AUDIT_ACTIONS.CAMPAIGN_UPDATE,
+    entityType: 'Campaign',
+    entityId: id,
+    before: { status: existing.status },
+    after: { title: item.title, status: item.status },
+  });
+
   return NextResponse.json({ success: true, item });
 }
 
@@ -53,5 +63,15 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   }
 
   await prisma.campaign.delete({ where: { id } });
+
+  const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
+  await writeAuditLog({
+    userId: guard.session.userId,
+    action: AUDIT_ACTIONS.CAMPAIGN_DELETE,
+    entityType: 'Campaign',
+    entityId: id,
+    before: { title: existing.title },
+  });
+
   return NextResponse.json({ success: true });
 }

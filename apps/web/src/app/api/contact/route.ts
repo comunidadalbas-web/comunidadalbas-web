@@ -74,7 +74,19 @@ export async function POST(request: NextRequest) {
     };
 
     const { prisma } = await import('@/lib/db');
-    const contactRequest = await prisma.contactRequest.create({ data: sanitized });
+    const { assignFolio } = await import('@/lib/solicitudes/folio');
+
+    let contactRequest = await prisma.contactRequest.create({ data: sanitized });
+    const folio = await assignFolio(
+      (year) =>
+        prisma.contactRequest.findMany({
+          where: { folio: { startsWith: `CA-${year}-` } },
+          select: { id: true, folio: true },
+          orderBy: { folio: 'desc' },
+        }),
+      (f) => prisma.contactRequest.update({ where: { id: contactRequest.id }, data: { folio: f } }).then(() => undefined),
+    );
+    contactRequest = await prisma.contactRequest.findUniqueOrThrow({ where: { id: contactRequest.id } });
 
     try {
       const { createEmailAdapter } = await import('@/lib/email');
@@ -103,7 +115,7 @@ export async function POST(request: NextRequest) {
       // Notification failure is non-blocking
     }
 
-    return NextResponse.json({ success: true, id: contactRequest.id }, { status: 201 });
+    return NextResponse.json({ success: true, id: contactRequest.id, folio: contactRequest.folio }, { status: 201 });
   } catch (err) {
     console.error('Contact API error:', err);
     return NextResponse.json(
