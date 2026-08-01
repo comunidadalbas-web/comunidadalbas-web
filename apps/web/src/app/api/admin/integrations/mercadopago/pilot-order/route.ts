@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         expiresAt,
         amount: parseFloat(amount),
         environment: 'production',
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: result.idempotencyKey!,
         isPilot: true,
         excludeFromCommunityBalance: true,
       },

@@ -26,6 +26,22 @@ export const calendarEventSchema = z.object({
   status: z.enum(['SCHEDULED', 'COMPLETED', 'CANCELLED']),
 });
 
+const slugSchema = z
+  .string()
+  .min(1, 'El slug es obligatorio')
+  .max(160)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'El slug solo puede contener letras minúsculas, números y guiones');
+
+export const blogPostSchema = z.object({
+  title: z.string().min(1, 'El título es obligatorio').max(200),
+  slug: slugSchema.optional(),
+  summary: z.string().max(500).optional(),
+  content: z.string().min(1, 'El contenido es obligatorio').max(50000),
+  coverImageUrl: z.string().url('URL de imagen inválida').max(500).optional().or(z.literal('').transform(() => undefined)),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
+});
+
 export type AnnouncementInput = z.infer<typeof announcementSchema>;
 export type CampaignInput = z.infer<typeof campaignSchema>;
 export type CalendarEventInput = z.infer<typeof calendarEventSchema>;
+export type BlogPostInput = z.infer<typeof blogPostSchema>;

@@ -37,6 +37,7 @@ function Header() {
           <a href="/">Inicio</a>
           <a href="/nosotros">Nosotros</a>
           <a href="/comunicados">Comunicados</a>
+          <a href="/blog">Blog</a>
           <a href="/calendario">Calendario</a>
           <a href="/documentos">Documentos</a>
           <a href="/pagos">Pagos</a>
@@ -72,6 +73,9 @@ function Footer() {
           <p>comunidadalbas.com.mx</p>
           <p>
             <a href="/comunicados">Comunicados</a>
+          </p>
+          <p>
+            <a href="/blog">Blog</a>
           </p>
           <p>
             <a href="/campanas">Campañas</a>

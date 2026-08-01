@@ -1,0 +1,29 @@
+# Secrets and local configuration
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Local dependencies, caches and test artifacts
+**/node_modules
+**/.next
+**/playwright-report
+**/test-results
+coverage
+packages/db/scripts/inspect-tables*.cjs
+
+# Private/source documents and local evidence are not runtime dependencies
+docs
+data
+legal documents
+Comunidad Albas00 Identidad Institucional
+Comunidad_Albas_Paquete_Unificado_v2.0
+*.pdf
+*.doc
+*.docx
+*.xlsx
+
+# Local tooling metadata
+.git
+.github
+.vercel

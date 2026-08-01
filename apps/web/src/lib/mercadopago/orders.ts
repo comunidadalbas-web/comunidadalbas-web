@@ -87,6 +87,7 @@ export async function createSpeiOrder(
     const paymentMethod = payment?.payment_method;
     return {
       success: true,
+      idempotencyKey,
       orderId: order.id,
       status: order.status,
       statusDetail: order.status_detail,
@@ -162,6 +163,7 @@ export async function createCheckoutPreference(
     });
     return {
       success: true,
+      idempotencyKey,
       preferenceId: preference.id,
       initPoint: preference.init_point,
       externalReference: preference.external_reference,

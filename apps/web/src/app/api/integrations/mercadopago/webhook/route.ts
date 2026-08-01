@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       ? verifySignature(resourceId, xRequestId, signatureHeader)
       : false;
 
-    const signatureError = signatureHeader && !signatureValid ? 'Firma inválida' : null;
+    const signatureError = !signatureHeader ? 'Firma ausente' : !signatureValid ? 'Firma inválida' : null;
 
     let duplicate = false;
     if (xRequestId) {
@@ -35,7 +35,11 @@ export async function POST(request: NextRequest) {
 
     let orderIdForEvent: string | null = null;
     if (topic.startsWith('order')) {
-      orderIdForEvent = resourceId;
+      const order = await prisma.mercadoPagoOrder.findUnique({
+        where: { orderId: resourceId },
+        select: { orderId: true },
+      });
+      orderIdForEvent = order?.orderId ?? null;
     } else if (topic.startsWith('payment')) {
       const order = await prisma.mercadoPagoOrder.findFirst({
         where: { OR: [{ paymentId: resourceId }, { orderId: `PREF-${resourceId}` }] },
@@ -58,6 +62,10 @@ export async function POST(request: NextRequest) {
       },
     });
     createdEventId = event.id;
+
+    if (!signatureValid) {
+      return NextResponse.json({ received: false, error: 'Firma no válida' }, { status: 401 });
+    }
 
     if (!duplicate && (topic.startsWith('order') || topic.startsWith('payment'))) {
       try {

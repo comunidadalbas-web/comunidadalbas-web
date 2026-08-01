@@ -1,0 +1,12 @@
+{
+  "auditDate": "2026-08-01",
+  "repository": "C:\\Users\\rbori\\OneDrive\\Desktop\\comunidadalbas",
+  "initialBranch": "feature/portal-administracion-comunitaria-v1",
+  "initialCommit": "d08ec5a5894c7df2917ffa7e28ffad14e333dd21",
+  "productionUrl": "https://comunidadalbas.com.mx/",
+  "productionDeploymentId": "dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe",
+  "status": "in_progress",
+  "realPaymentsCreated": 0,
+  "productionModified": false,
+  "secretsRecorded": false
+}

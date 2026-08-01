@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         expiresAt,
         amount: 200.00,
         environment: 'test',
-        idempotencyKey: '[internal]',
+        idempotencyKey: result.idempotencyKey!,
       },
     });
 

@@ -12,6 +12,7 @@ export interface SessionPayload {
   email: string;
   displayName: string;
   roles: string[];
+  mustChangePassword?: boolean;
   exp: number;
 }
 
@@ -21,12 +22,18 @@ function secret(): string {
   return value;
 }
 
+function csrfSecret(): string {
+  const value = process.env.CSRF_SECRET;
+  if (!value) throw new Error('CSRF_SECRET no configurado');
+  return value;
+}
+
 function sign(payload: string): string {
   return createHmac('sha256', secret()).update(payload).digest('base64url');
 }
 
 function signCsrf(value: string): string {
-  return createHmac('sha256', secret() + ':csrf').update(value).digest('base64url');
+  return createHmac('sha256', csrfSecret()).update(value).digest('base64url');
 }
 
 export function createSessionToken(payload: SessionPayload): string {
@@ -45,7 +52,7 @@ export function verifySessionToken(token: string): SessionPayload | null {
     if (decoded.v !== SESSION_VERSION) return null;
     if (!decoded.userId || !decoded.email || !Array.isArray(decoded.roles)) return null;
     if (typeof decoded.exp !== 'number' || decoded.exp < Date.now() / 1000) return null;
-    return decoded;
+    return { ...decoded, mustChangePassword: decoded.mustChangePassword === true };
   } catch {
     return null;
   }

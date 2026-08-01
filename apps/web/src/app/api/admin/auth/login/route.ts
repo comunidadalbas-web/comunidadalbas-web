@@ -80,12 +80,16 @@ export async function POST(request: NextRequest) {
     email: user.email,
     displayName: user.displayName,
     roles,
+    mustChangePassword: user.mustChangePassword,
     exp: Math.floor(sessionExpiryDate().getTime() / 1000),
   };
 
   const { session, csrf } = buildSessionCookies(payload);
 
-  const response = NextResponse.json({ success: true, user: { email: user.email, displayName: user.displayName, roles } });
+  const response = NextResponse.json({
+    success: true,
+    user: { email: user.email, displayName: user.displayName, roles, mustChangePassword: user.mustChangePassword },
+  });
   response.cookies.set(SESSION_COOKIE, session, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

@@ -47,10 +47,17 @@ export function badCsrf(): NextResponse {
 
 export async function guardAdminRequest(
   request: NextRequest,
-  opts: { roles?: string[]; csrf?: boolean } = {},
+  opts: { roles?: string[]; csrf?: boolean; allowMustChangePassword?: boolean } = {},
 ): Promise<{ session: SessionPayload } | NextResponse> {
   const session = await getSessionFromRequest();
   if (!session) return unauthorized('Sesión requerida');
+
+  if (session.mustChangePassword === true && !opts.allowMustChangePassword) {
+    return NextResponse.json(
+      { error: 'Debes cambiar tu contraseña antes de continuar' },
+      { status: 403 },
+    );
+  }
 
   if (opts.roles && opts.roles.length > 0 && !hasRole(session, ...opts.roles)) {
     return forbidden();

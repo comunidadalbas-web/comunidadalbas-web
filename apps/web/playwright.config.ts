@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { E2E_CSRF_SECRET, E2E_SESSION_SECRET } from './e2e/helpers/session';
 
 export default defineConfig({
   testDir: './e2e',
@@ -16,5 +17,9 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     cwd: '../..',
+    env: {
+      SESSION_SECRET: E2E_SESSION_SECRET,
+      CSRF_SECRET: E2E_CSRF_SECRET,
+    },
   },
 });

@@ -12,13 +12,15 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'error' | 'success'>('idle');
   const [error, setError] = useState('');
+  const [mustChangePassword, setMustChangePassword] = useState(false);
 
   useEffect(() => {
     if (status === 'success') {
-      const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/admin';
+      const target = mustChangePassword ? '/admin/change-password' : next;
+      const safeNext = target.startsWith('/') && !target.startsWith('//') ? target : '/admin';
       router.replace(safeNext);
     }
-  }, [status, next, router]);
+  }, [status, next, router, mustChangePassword]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -35,6 +37,8 @@ function LoginForm() {
         const data = await res.json();
         throw new Error(data.error || 'No se pudo iniciar sesión');
       }
+      const data = await res.json();
+      setMustChangePassword(Boolean(data.user?.mustChangePassword));
       setStatus('success');
     } catch (err) {
       setStatus('error');

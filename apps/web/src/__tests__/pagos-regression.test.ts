@@ -57,12 +57,14 @@ describe('Regresión /api/pagos/create', () => {
     mocks.orderCreate.mockResolvedValue({});
     mocks.checkoutPref.mockResolvedValue({
       success: true,
+      idempotencyKey: 'idem-card-1',
       preferenceId: 'PREF_MOCK_1',
       initPoint: 'https://checkout.mercadopago.com/checkout/v1/pref/PREF_MOCK_1',
       externalReference: 'CUOTA-2026-07-31-A-101-abcdef12',
     });
     mocks.speiOrder.mockResolvedValue({
       success: true,
+      idempotencyKey: 'idem-spei-1',
       orderId: 'ORD_MOCK_1',
       status: 'pending',
       paymentId: 'PAY_MOCK_1',
@@ -121,7 +123,12 @@ describe('Regresión /api/pagos/create', () => {
     expect(mocks.checkoutPref).toHaveBeenCalled();
     expect(mocks.orderCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ building: 'A', apartment: '101', isPilot: false }),
+        data: expect.objectContaining({
+          building: 'A',
+          apartment: '101',
+          idempotencyKey: 'idem-card-1',
+          isPilot: false,
+        }),
       }),
     );
   });
@@ -134,6 +141,11 @@ describe('Regresión /api/pagos/create', () => {
     expect(body.reference).toBe('REF_MOCK_1');
     expect(body.ticketUrl).toContain('ORD_MOCK_1');
     expect(mocks.speiOrder).toHaveBeenCalled();
+    expect(mocks.orderCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ idempotencyKey: 'idem-spei-1' }),
+      }),
+    );
   });
 
   it('devuelve 502 si Mercado Pago falla', async () => {

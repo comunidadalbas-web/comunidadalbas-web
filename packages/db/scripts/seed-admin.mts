@@ -32,9 +32,9 @@ const hash = `scrypt$${salt}$${scryptSync(password, salt, KEY_LEN).toString('hex
 const sql = neon(process.env.DATABASE_URL!);
 
 const upsertUser = await sql`
-  INSERT INTO "User" (id, email, "displayName", "passwordHash", active, "createdAt", "updatedAt")
-  VALUES (gen_random_uuid(), ${email}, ${displayName}, ${hash}, true, now(), now())
-  ON CONFLICT ("email") DO UPDATE SET "passwordHash" = EXCLUDED."passwordHash", "updatedAt" = now()
+  INSERT INTO "User" (id, email, "displayName", "passwordHash", active, "mustChangePassword", "createdAt", "updatedAt")
+  VALUES (gen_random_uuid(), ${email}, ${displayName}, ${hash}, true, true, now(), now())
+  ON CONFLICT ("email") DO UPDATE SET "passwordHash" = EXCLUDED."passwordHash", "mustChangePassword" = true, "updatedAt" = now()
   RETURNING id, email;
 `;
 

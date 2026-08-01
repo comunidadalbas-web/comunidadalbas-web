@@ -33,6 +33,7 @@ export interface MercadoPagoOrderResponse {
 
 export interface CreateSpeiOrderResult {
   success: boolean;
+  idempotencyKey?: string;
   orderId?: string;
   status?: string;
   statusDetail?: string;
@@ -64,6 +65,7 @@ export interface CreateCheckoutPreferenceParams {
 
 export interface CreateCheckoutPreferenceResult {
   success: boolean;
+  idempotencyKey?: string;
   preferenceId?: string;
   initPoint?: string;
   externalReference?: string;
