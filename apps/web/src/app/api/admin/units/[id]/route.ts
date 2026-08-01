@@ -32,19 +32,29 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   if (data.code) {
     const dup = await prisma.unit.findUnique({ where: { code: data.code.trim() } });
     if (dup && dup.id !== id) {
-      return NextResponse.json({ error: 'Ya existe un departamento con ese código' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'Ya existe un departamento con ese código' },
+        { status: 409 },
+      );
     }
   }
   if (data.buildingId) {
     const building = await prisma.building.findUnique({ where: { id: data.buildingId } });
     if (!building) return NextResponse.json({ error: 'Edificio no encontrado' }, { status: 400 });
   }
-  if (data.buildingId && data.apartmentNumber !== undefined) {
+  if (data.buildingId !== undefined || data.apartmentNumber !== undefined) {
     const dupInBuilding = await prisma.unit.findFirst({
-      where: { buildingId: data.buildingId, apartmentNumber: data.apartmentNumber.trim(), NOT: { id } },
+      where: {
+        buildingId: data.buildingId ?? existing.buildingId,
+        apartmentNumber: (data.apartmentNumber ?? existing.apartmentNumber).trim(),
+        NOT: { id },
+      },
     });
     if (dupInBuilding) {
-      return NextResponse.json({ error: 'Ese departamento ya existe en el edificio' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'Ese departamento ya existe en el edificio' },
+        { status: 409 },
+      );
     }
   }
 

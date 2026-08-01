@@ -24,28 +24,38 @@ const MP_PAID_STATUSES = ['approved', 'paid', 'applied'];
 const EXPENSE_INCLUDED_STATUSES: ExpenseStatus[] = ['AUTHORIZED', 'PAID', 'VERIFIED', 'RECONCILED'];
 
 export async function getSummaryStats(): Promise<SummaryStats> {
-  const [buildingCount, unitCount, activeUnitCount, feeConceptCount, paymentAgg, expenseAgg, orders] =
-    await Promise.all([
-      prisma.building.count({ where: { status: 'ACTIVE' } }),
-      prisma.unit.count(),
-      prisma.unit.count({ where: { status: 'ACTIVE' } }),
-      prisma.feeConcept.count({ where: { status: 'ACTIVE' } }),
-      prisma.payment.aggregate({
-        where: { status: { in: ['CONFIRMED', 'APPLIED'] } },
-        _count: true,
-        _sum: { amount: true },
-      }),
-      prisma.expense.aggregate({
-        where: { status: { in: EXPENSE_INCLUDED_STATUSES } },
-        _sum: { amount: true },
-      }),
-      prisma.mercadoPagoOrder.groupBy({
-        by: ['status'],
-        where: { excludeFromCommunityBalance: false },
-        _count: { _all: true },
-        _sum: { amount: true },
-      }),
-    ]);
+  const [
+    buildingCount,
+    unitCount,
+    activeUnitCount,
+    feeConceptCount,
+    paymentAgg,
+    providerPayments,
+    expenseAgg,
+    orders,
+  ] = await Promise.all([
+    prisma.building.count({ where: { status: 'ACTIVE' } }),
+    prisma.unit.count(),
+    prisma.unit.count({ where: { status: 'ACTIVE' } }),
+    prisma.feeConcept.count({ where: { status: 'ACTIVE' } }),
+    prisma.payment.aggregate({
+      where: { status: { in: ['CONFIRMED', 'APPLIED'] } },
+      _count: true,
+      _sum: { amount: true },
+    }),
+    prisma.payment.findMany({
+      where: { providerMovementId: { not: null } },
+      select: { providerMovementId: true },
+    }),
+    prisma.expense.aggregate({
+      where: { status: { in: EXPENSE_INCLUDED_STATUSES } },
+      _sum: { amount: true },
+    }),
+    prisma.mercadoPagoOrder.findMany({
+      where: { excludeFromCommunityBalance: false },
+      select: { orderId: true, paymentId: true, status: true, amount: true },
+    }),
+  ]);
 
   // Cargos pendientes: por unidad, el total cobrado (Charge) contra lo aplicado (PaymentApplication)
   const charges = await prisma.charge.findMany({
@@ -57,17 +67,28 @@ export async function getSummaryStats(): Promise<SummaryStats> {
     0,
   );
 
-  const confirmedIncome = Number(paymentAgg._sum?.amount ?? 0);
-  const confirmedPayments = paymentAgg._count;
+  const reconciledMovements = new Set(
+    providerPayments.map((payment) => payment.providerMovementId),
+  );
+  const unmatchedPaidOrders = orders.filter(
+    (order) =>
+      MP_PAID_STATUSES.includes(order.status) &&
+      !reconciledMovements.has(order.paymentId || order.orderId),
+  );
+  const confirmedIncome =
+    Number(paymentAgg._sum?.amount ?? 0) +
+    unmatchedPaidOrders.reduce((sum, order) => sum + Number(order.amount), 0);
+  const confirmedPayments = paymentAgg._count + unmatchedPaidOrders.length;
   const expensesTotal = Number(expenseAgg._sum?.amount ?? 0);
 
-  const recentOrders = orders
-    .map((o) => ({
-      status: o.status,
-      count: o._count._all,
-      amount: Number(o._sum?.amount ?? 0),
-    }))
-    .sort((a, b) => b.amount - a.amount);
+  const orderGroups = new Map<string, { status: string; count: number; amount: number }>();
+  for (const order of orders) {
+    const group = orderGroups.get(order.status) ?? { status: order.status, count: 0, amount: 0 };
+    group.count += 1;
+    group.amount += Number(order.amount);
+    orderGroups.set(order.status, group);
+  }
+  const recentOrders = [...orderGroups.values()].sort((a, b) => b.amount - a.amount);
 
   return {
     buildings: buildingCount,
@@ -103,7 +124,7 @@ export async function getMonthlySeries(months = 6): Promise<MonthlySeriesPoint[]
         status: { in: ['CONFIRMED', 'APPLIED'] },
         paidAt: { gte: since },
       },
-      select: { amount: true, paidAt: true },
+      select: { amount: true, paidAt: true, providerMovementId: true },
     }),
     prisma.expense.findMany({
       where: {
@@ -118,7 +139,7 @@ export async function getMonthlySeries(months = 6): Promise<MonthlySeriesPoint[]
         excludeFromCommunityBalance: false,
         createdAt: { gte: since },
       },
-      select: { amount: true, createdAt: true },
+      select: { orderId: true, paymentId: true, amount: true, createdAt: true },
     }),
   ]);
 
@@ -129,15 +150,18 @@ export async function getMonthlySeries(months = 6): Promise<MonthlySeriesPoint[]
     points.push({ month: key, income: 0, expenses: 0 });
   }
 
-  const keyOf = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   const indexOf = new Map(points.map((p, i) => [p.month, i]));
 
   for (const p of payments) {
     const i = indexOf.get(keyOf(p.paidAt ?? new Date()));
     if (i !== undefined) points[i].income += Number(p.amount);
   }
+  const reconciledMovements = new Set(
+    payments.map((payment) => payment.providerMovementId).filter(Boolean),
+  );
   for (const o of mpOrders) {
+    if (reconciledMovements.has(o.paymentId || o.orderId)) continue;
     const i = indexOf.get(keyOf(o.createdAt));
     if (i !== undefined) points[i].income += Number(o.amount);
   }

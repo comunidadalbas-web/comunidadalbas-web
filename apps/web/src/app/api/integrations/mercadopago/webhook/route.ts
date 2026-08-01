@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
       ? verifySignature(resourceId, xRequestId, signatureHeader)
       : false;
 
-    const signatureError = !signatureHeader ? 'Firma ausente' : !signatureValid ? 'Firma inválida' : null;
+    const signatureError = !signatureHeader
+      ? 'Firma ausente'
+      : !signatureValid
+        ? 'Firma inválida'
+        : null;
 
     let duplicate = false;
     if (xRequestId) {
@@ -69,10 +73,10 @@ export async function POST(request: NextRequest) {
 
     if (!duplicate && (topic.startsWith('order') || topic.startsWith('payment'))) {
       try {
-        await processOrderNotification(resourceId, topic);
+        const processResult = await processOrderNotification(resourceId, topic);
         await prisma.mercadoPagoWebhookEvent.update({
           where: { id: event.id },
-          data: { processed: true, processResult: 'OK' },
+          data: { processed: true, processResult: processResult || 'OK' },
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
@@ -89,10 +93,12 @@ export async function POST(request: NextRequest) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('webhook error:', message);
     if (createdEventId) {
-      await prisma.mercadoPagoWebhookEvent.update({
-        where: { id: createdEventId },
-        data: { processError: `outer: ${message}` },
-      }).catch(() => {});
+      await prisma.mercadoPagoWebhookEvent
+        .update({
+          where: { id: createdEventId },
+          data: { processError: `outer: ${message}` },
+        })
+        .catch(() => {});
     }
     return NextResponse.json({ received: true }, { status: 200 });
   }

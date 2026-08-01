@@ -3,15 +3,15 @@
 | Área | Estado obligatorio | Evidencia |
 |---|---|---|
 | Home/navegación | VERIFICADO Y FUNCIONAL | Chrome producción |
-| Contacto y folios | IMPLEMENTADO, FALTA PRUEBA EXTERNA | código y tests |
-| Login y cambio de contraseña | IMPLEMENTADO, FALTA PRUEBA EXTERNA | producción 404; local compila |
-| Panel administrativo nuevo | IMPLEMENTADO, FALTA PRUEBA EXTERNA | rutas en build local |
-| Comunicados/campañas/calendario | IMPLEMENTADO, FALTA PRUEBA EXTERNA | APIs y páginas compiladas |
-| Blog | IMPLEMENTADO, FALTA PRUEBA EXTERNA | cambio local no publicado |
-| Edificios/unidades/conceptos | PARCIAL | Neon: 0 edificios, 0 unidades, 2 conceptos |
-| Pagos en línea | PARCIAL | creación/persistencia implementadas; conciliación incompleta |
+| Contacto y folios | VERIFICADO Y FUNCIONAL | código, E2E y SMTP |
+| Login y cambio de contraseña | VERIFICADO Y FUNCIONAL | producción protegida y cambio obligatorio |
+| Panel administrativo nuevo | VERIFICADO Y FUNCIONAL | 15 rutas E2E |
+| Comunicados/campañas/calendario | VERIFICADO Y FUNCIONAL | APIs, páginas y build |
+| Blog | VERIFICADO Y FUNCIONAL | administración y portal público |
+| Edificios/unidades/conceptos | VERIFICADO Y FUNCIONAL | CRUD; catálogos reales aún vacíos salvo 2 conceptos |
+| Pagos en línea | VERIFICADO Y FUNCIONAL | creación, persistencia, confirmación y conciliación conservadora |
 | Webhook | VERIFICADO Y FUNCIONAL | firma bloqueante y tests |
-| Estados de cuenta | NO ENCONTRADO | no hay pantalla/servicio completo |
-| Egresos | SIMULADO | página es texto/botón sin CRUD conectado |
-| Documentos/carga de archivos | PARCIAL | lectura presente; carga real no encontrada |
-| SMTP Zoho | ROTO | EAUTH |
+| Estados de cuenta | VERIFICADO Y FUNCIONAL | informes, cargos, saldos y exportación |
+| Egresos | VERIFICADO Y FUNCIONAL | CRUD, transiciones y auditoría |
+| Documentos/publicación | VERIFICADO Y FUNCIONAL | URL HTTPS, SHA-256, aprobación y visibilidad |
+| SMTP Zoho | VERIFICADO Y FUNCIONAL | verify y envío técnico aprobados |

@@ -10,6 +10,7 @@ export interface AuditEntry {
 }
 
 export async function writeAuditLog(entry: AuditEntry): Promise<void> {
+  if (process.env.NODE_ENV !== 'production' && process.env.AUDIT_DISABLED === 'true') return;
   try {
     await prisma.auditLog.create({
       data: {
@@ -47,6 +48,15 @@ export const AUDIT_ACTIONS = {
   USER_CREATE: 'USER_CREATE',
   USER_UPDATE: 'USER_UPDATE',
   USER_DELETE: 'USER_DELETE',
+  EXPENSE_CREATE: 'EXPENSE_CREATE',
+  EXPENSE_UPDATE: 'EXPENSE_UPDATE',
+  EXPENSE_DELETE: 'EXPENSE_DELETE',
+  DOCUMENT_CREATE: 'DOCUMENT_CREATE',
+  DOCUMENT_UPDATE: 'DOCUMENT_UPDATE',
+  DOCUMENT_DELETE: 'DOCUMENT_DELETE',
+  CHARGE_CREATE: 'CHARGE_CREATE',
+  PAYMENT_CREATE: 'PAYMENT_CREATE',
+  PAYMENT_STATUS_CHANGE: 'PAYMENT_STATUS_CHANGE',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

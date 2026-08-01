@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function DocumentosPage() {
   const publicDocs = await prisma.document.findMany({
-    where: { visibility: 'PUBLIC' },
+    where: { visibility: 'PUBLIC', approvedAt: { not: null } },
     orderBy: [{ category: 'asc' }, { title: 'asc' }],
   });
 
@@ -49,9 +49,7 @@ export default async function DocumentosPage() {
 
       <section className="info-section">
         <h2>Transparencia</h2>
-        <p>
-          En cumplimiento con nuestro compromiso de transparencia, este espacio alojará:
-        </p>
+        <p>En cumplimiento con nuestro compromiso de transparencia, este espacio alojará:</p>
         <ul style={{ marginLeft: '1.5rem', marginTop: '0.75rem' }}>
           <li>Estatutos y reglamentos</li>
           <li>Avisos de privacidad</li>

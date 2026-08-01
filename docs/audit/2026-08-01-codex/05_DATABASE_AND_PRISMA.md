@@ -11,4 +11,6 @@ Estado Neon leído sin mutaciones:
 
 Inicialmente `prisma migrate status` informó que `0_init` no fue aplicada. Se comparó Neon directamente contra el esquema actual y el resultado fue una migración vacía. Se generó `20260801123000_schema_sync` desde el esquema histórico exacto, y ambas migraciones se marcaron como aplicadas mediante `migrate resolve`; no se ejecutó DDL, `db push` ni migración destructiva.
 
-Estado final: dos migraciones registradas y `Database schema is up to date`. El script `audit:state` confirma 20 tablas públicas, un administrador activo y cero identificadores de webhook duplicados.
+Después se aplicó `20260801191500_institutional_admin_accounts`: convirtió la cuenta heredada en Presidencia sin cambiar su hash, activó cambio obligatorio y añadió una restricción DB a los cinco correos autorizados.
+
+Estado final: tres migraciones registradas y `Database schema is up to date`. `audit:state` confirma 20 tablas públicas, un administrador activo, restricción institucional validada, cero identificadores de webhook duplicados y cero filas efímeras residuales de las pruebas financieras.

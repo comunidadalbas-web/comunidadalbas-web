@@ -2,7 +2,7 @@
  * Seed del primer usuario administrador.
  *
  * Uso:
- *   ADMIN_INITIAL_EMAIL="admin@comunidadalbas.com.mx" \
+ *   ADMIN_INITIAL_EMAIL="presidencia@comunidadalbas.com.mx" \
  *   ADMIN_INITIAL_PASSWORD="cambia-esta-contrasena" \
  *   node --experimental-strip-types scripts/seed-admin.mts
  *
@@ -15,9 +15,20 @@ import { randomBytes, scryptSync } from 'node:crypto';
 const email = process.env.ADMIN_INITIAL_EMAIL?.trim().toLowerCase();
 const password = process.env.ADMIN_INITIAL_PASSWORD;
 const displayName = process.env.ADMIN_INITIAL_NAME?.trim() || 'Administrador';
+const allowedEmails = new Set([
+  'presidencia@comunidadalbas.com.mx',
+  'secretaria@comunidadalbas.com.mx',
+  'tesoreria@comunidadalbas.com.mx',
+  'contacto@comunidadalbas.com.mx',
+  'transparencia@comunidadalbas.com.mx',
+]);
 
 if (!email || !password) {
   console.error('Faltan ADMIN_INITIAL_EMAIL y/o ADMIN_INITIAL_PASSWORD');
+  process.exit(1);
+}
+if (!allowedEmails.has(email)) {
+  console.error('El correo no pertenece a las cinco cuentas institucionales autorizadas');
   process.exit(1);
 }
 if (password.length < 12) {

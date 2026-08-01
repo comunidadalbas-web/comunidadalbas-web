@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { createUserSchema, updateUserSchema, USER_ROLES } from '@/lib/users/validation';
+import {
+  INSTITUTIONAL_ACCOUNTS,
+  INSTITUTIONAL_ALIASES,
+  MAX_ADMIN_USERS,
+} from '@/lib/users/institutional-accounts';
 
 describe('users/validation - create', () => {
   const valid = {
-    email: 'juan@comunidadalbas.com.mx',
-    displayName: 'Juan Pérez',
+    email: 'presidencia@comunidadalbas.com.mx',
+    displayName: 'Presidencia',
     password: 'clave-muy-segura-123',
     roles: ['resident'],
   };
@@ -15,6 +20,16 @@ describe('users/validation - create', () => {
 
   it('rejects invalid email', () => {
     const res = createUserSchema.safeParse({ ...valid, email: 'not-an-email' });
+    expect(res.success).toBe(false);
+  });
+
+  it('rejects a valid but unauthorized institutional-domain email', () => {
+    const res = createUserSchema.safeParse({ ...valid, email: 'persona@comunidadalbas.com.mx' });
+    expect(res.success).toBe(false);
+  });
+
+  it('rejects functional aliases as panel users', () => {
+    const res = createUserSchema.safeParse({ ...valid, email: 'pagos@comunidadalbas.com.mx' });
     expect(res.success).toBe(false);
   });
 
@@ -39,7 +54,24 @@ describe('users/validation - create', () => {
   });
 
   it('exposes the six roles', () => {
-    expect(USER_ROLES).toEqual(['admin', 'director', 'tesorero', 'secretario', 'vocal', 'resident']);
+    expect(USER_ROLES).toEqual([
+      'admin',
+      'director',
+      'tesorero',
+      'secretario',
+      'vocal',
+      'resident',
+    ]);
+  });
+
+  it('defines exactly five panel accounts and three non-user aliases', () => {
+    expect(INSTITUTIONAL_ACCOUNTS).toHaveLength(MAX_ADMIN_USERS);
+    expect(INSTITUTIONAL_ALIASES).toHaveLength(3);
+    expect(INSTITUTIONAL_ALIASES.map((alias) => alias.email)).toEqual([
+      'pagos@comunidadalbas.com.mx',
+      'privacidad@comunidadalbas.com.mx',
+      'administracion@comunidadalbas.com.mx',
+    ]);
   });
 });
 

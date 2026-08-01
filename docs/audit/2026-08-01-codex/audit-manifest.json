@@ -4,9 +4,12 @@
   "initialBranch": "feature/portal-administracion-comunitaria-v1",
   "initialCommit": "d08ec5a5894c7df2917ffa7e28ffad14e333dd21",
   "productionUrl": "https://comunidadalbas.com.mx/",
-  "productionDeploymentId": "dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe",
-  "status": "in_progress",
+  "productionDeploymentId": "dpl_5qJDZGnY3Ms7Zjxw3eNjrWdVoc6V",
+  "rollbackDeploymentId": "dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe",
+  "status": "complete",
   "realPaymentsCreated": 0,
-  "productionModified": false,
+  "productionModified": true,
+  "unitTestsPassed": 90,
+  "e2eTestsPassed": 14,
   "secretsRecorded": false
 }

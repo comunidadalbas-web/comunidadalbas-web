@@ -20,6 +20,7 @@ export default defineConfig({
     env: {
       SESSION_SECRET: E2E_SESSION_SECRET,
       CSRF_SECRET: E2E_CSRF_SECRET,
+      AUDIT_DISABLED: 'true',
     },
   },
 });

@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getSessionFromRequest } from '@/lib/auth/session';
-import { ROLES } from '@/lib/auth/guards';
 import AdminNav from './admin-nav';
 
 export const metadata = {
@@ -17,12 +16,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/admin/change-password');
   }
 
-  const canManageFinance = session.roles.includes(ROLES.ADMIN) || session.roles.includes(ROLES.TESORERO);
-  const canManageContent = session.roles.includes(ROLES.ADMIN) || session.roles.includes(ROLES.DIRECTOR);
-
   return (
     <div className="admin-shell">
-      <AdminNav displayName={session.displayName} email={session.email} />
+      <AdminNav displayName={session.displayName} email={session.email} roles={session.roles} />
       <div className="admin-content">{children}</div>
     </div>
   );

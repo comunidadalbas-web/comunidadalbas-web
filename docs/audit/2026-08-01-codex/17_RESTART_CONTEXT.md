@@ -1,6 +1,6 @@
 # Contexto de reanudación
 
-Trabajar en `C:\Users\rbori\OneDrive\Desktop\comunidadalbas`, rama `feature/portal-administracion-comunitaria-v1`. Preservar todos los cambios sin confirmar; son una fase administrativa preexistente más correcciones Codex.
+Trabajar en `C:\Users\rbori\OneDrive\Desktop\comunidadalbas`, rama `feature/portal-administracion-comunitaria-v1`. La fase administrativa y las correcciones Codex están versionadas y publicadas.
 
 Leer primero `00_EXECUTIVE_SUMMARY.md`, `11_ISSUES_AND_TECHNICAL_DEBT.md` y `15_DEPLOYMENT_READINESS.md`.
 
@@ -14,4 +14,4 @@ pnpm build
 pnpm --filter @comunidad-albas/db exec prisma validate
 ```
 
-No ejecutar `prisma migrate`, `db push`, pagos, rotación de secretos, cambios DNS ni despliegue hasta resolver los bloqueos documentados. Producción actual: despliegue Vercel `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe`. No cerrar Chrome.
+Neon tiene tres migraciones al día. No usar `db push`, no generar pagos reales para pruebas y no rotar secretos sin autorización. Cargar edificios/departamentos reales antes de operar cargos. El despliegue `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe` queda sólo como rollback.

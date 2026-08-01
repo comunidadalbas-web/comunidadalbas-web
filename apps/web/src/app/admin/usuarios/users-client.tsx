@@ -1,6 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  INSTITUTIONAL_ACCOUNTS,
+  INSTITUTIONAL_ALIASES,
+  MAX_ADMIN_USERS,
+} from '@/lib/users/institutional-accounts';
 
 const ROLES = ['admin', 'director', 'tesorero', 'secretario', 'vocal', 'resident'] as const;
 type Role = (typeof ROLES)[number];
@@ -19,6 +24,7 @@ interface Usuario {
   email: string;
   displayName: string;
   active: boolean;
+  mustChangePassword: boolean;
   lastLoginAt: string | null;
   createdAt: string;
   roles: string[];
@@ -55,7 +61,28 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
 
   const openNew = () => {
     resetForm();
+    const existingEmails = new Set(rows.map((row) => row.email));
+    const account = INSTITUTIONAL_ACCOUNTS.find((item) => !existingEmails.has(item.email));
+    if (account) {
+      setForm({
+        email: account.email,
+        displayName: account.displayName,
+        password: '',
+        roles: [...account.defaultRoles] as Role[],
+      });
+    }
     setShowForm(true);
+  };
+
+  const selectInstitutionalAccount = (email: string) => {
+    const account = INSTITUTIONAL_ACCOUNTS.find((item) => item.email === email);
+    if (!account) return;
+    setForm((current) => ({
+      ...current,
+      email: account.email,
+      displayName: account.displayName,
+      roles: [...account.defaultRoles] as Role[],
+    }));
   };
 
   const openEdit = (u: Usuario) => {
@@ -74,7 +101,9 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
     setForm((f) => ({
       ...f,
       roles: f.roles.includes(role)
-        ? (f.roles.length > 1 ? f.roles.filter((r) => r !== role) : f.roles)
+        ? f.roles.length > 1
+          ? f.roles.filter((r) => r !== role)
+          : f.roles
         : [...f.roles, role],
     }));
   };
@@ -96,6 +125,7 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
         ? {
             displayName: form.displayName,
             roles: form.roles,
+            mustChangePassword: form.password ? true : editing.mustChangePassword,
             ...(form.password ? { password: form.password } : {}),
           }
         : { ...form, email: form.email.trim().toLowerCase() };
@@ -121,6 +151,7 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
             email: item.email,
             displayName: form.displayName,
             active: true,
+            mustChangePassword: true,
             lastLoginAt: null,
             createdAt: new Date().toISOString(),
             roles: form.roles,
@@ -156,6 +187,7 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
             ? {
                 ...r,
                 active: item.active,
+                mustChangePassword: item.mustChangePassword,
                 displayName: item.displayName,
                 roles: item.roles,
               }
@@ -170,7 +202,8 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
   };
 
   const toggleActive = async (u: Usuario) => {
-    if (!confirm(u.active ? `¿Desactivar a ${u.displayName}?` : `¿Reactivar a ${u.displayName}?`)) return;
+    if (!confirm(u.active ? `¿Desactivar a ${u.displayName}?` : `¿Reactivar a ${u.displayName}?`))
+      return;
     await patch(u.id, { active: !u.active });
   };
 
@@ -203,8 +236,38 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
         </div>
       )}
 
-      <button className="btn btn-primary" onClick={openNew} style={{ marginBottom: '1rem' }}>
-        {showForm ? 'Ocultar formulario' : '+ Nuevo usuario'}
+      <div className="card" style={{ marginBottom: '1rem' }}>
+        <strong>
+          Cuentas autorizadas: {rows.length}/{MAX_ADMIN_USERS}
+        </strong>
+        <p style={{ margin: '0.5rem 0' }}>
+          El panel admite únicamente las cinco cuentas institucionales. Toda cuenta nueva o
+          contraseña restablecida exige cambio al iniciar sesión.
+        </p>
+        <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>
+          {INSTITUTIONAL_ACCOUNTS.map((account) => (
+            <li key={account.email}>
+              <strong>{account.displayName}</strong> — {account.email}: {account.responsibility}
+            </li>
+          ))}
+        </ul>
+        <small>
+          Alias funcionales (no crean usuarios):{' '}
+          {INSTITUTIONAL_ALIASES.map((alias) => (
+            <span key={alias.email} style={{ display: 'block' }}>
+              {alias.email} → {alias.targetEmail} ({alias.function})
+            </span>
+          ))}
+        </small>
+      </div>
+
+      <button
+        className="btn btn-primary"
+        onClick={openNew}
+        disabled={rows.length >= MAX_ADMIN_USERS}
+        style={{ marginBottom: '1rem' }}
+      >
+        {rows.length >= MAX_ADMIN_USERS ? 'Límite de 5 usuarios alcanzado' : '+ Nuevo usuario'}
       </button>
 
       {showForm && (
@@ -223,14 +286,23 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
           </div>
           <div className="form-group">
             <label className="form-label">Correo electrónico *</label>
-            <input
-              className="form-input"
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              maxLength={254}
-              disabled={!!editing}
-            />
+            {editing ? (
+              <input className="form-input" type="email" value={form.email} disabled />
+            ) : (
+              <select
+                className="form-input"
+                value={form.email}
+                onChange={(e) => selectInstitutionalAccount(e.target.value)}
+              >
+                {INSTITUTIONAL_ACCOUNTS.filter(
+                  (account) => !rows.some((row) => row.email === account.email),
+                ).map((account) => (
+                  <option key={account.email} value={account.email}>
+                    {account.displayName} — {account.email}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <div className="form-group">
             <label className="form-label">
@@ -264,7 +336,9 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
             <button className="btn btn-primary" onClick={save} disabled={saving}>
               {saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Crear usuario'}
             </button>
-            <button className="btn btn-ghost" onClick={resetForm}>Cancelar</button>
+            <button className="btn btn-ghost" onClick={resetForm}>
+              Cancelar
+            </button>
           </div>
         </div>
       )}
@@ -290,13 +364,19 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
                   <td>
                     <strong>{u.displayName}</strong>
                     {u.id === currentUserId && (
-                      <span className="badge badge-resolved" style={{ marginLeft: '0.5rem' }}>tú</span>
+                      <span className="badge badge-resolved" style={{ marginLeft: '0.5rem' }}>
+                        tú
+                      </span>
                     )}
                   </td>
                   <td>{u.email}</td>
                   <td>
                     {u.roles.map((r) => (
-                      <span key={r} className="badge badge-review" style={{ marginRight: '0.25rem' }}>
+                      <span
+                        key={r}
+                        className="badge badge-review"
+                        style={{ marginRight: '0.25rem' }}
+                      >
                         {ROLE_LABEL[r as Role] || r}
                       </span>
                     ))}
@@ -305,12 +385,21 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
                     <span className={u.active ? 'badge badge-resolved' : 'badge badge-archived'}>
                       {u.active ? 'Activo' : 'Inactivo'}
                     </span>
+                    {u.mustChangePassword && (
+                      <span className="badge badge-review" style={{ marginLeft: '0.25rem' }}>
+                        Cambio de contraseña pendiente
+                      </span>
+                    )}
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString('es-MX') : 'Nunca'}
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
-                    <button className="btn btn-ghost" disabled={busyId === u.id} onClick={() => openEdit(u)}>
+                    <button
+                      className="btn btn-ghost"
+                      disabled={busyId === u.id}
+                      onClick={() => openEdit(u)}
+                    >
                       Editar
                     </button>{' '}
                     {u.id !== currentUserId && (

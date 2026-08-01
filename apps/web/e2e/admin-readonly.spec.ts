@@ -24,7 +24,13 @@ const routes = [
 test.beforeEach(async ({ context }) => {
   const cookies = buildAdminCookies();
   await context.addCookies([
-    { name: 'albas_session', value: cookies.session, url: 'http://localhost:3000', httpOnly: true, sameSite: 'Lax' },
+    {
+      name: 'albas_session',
+      value: cookies.session,
+      url: 'http://localhost:3000',
+      httpOnly: true,
+      sameSite: 'Lax',
+    },
     { name: 'albas_csrf', value: cookies.csrf, url: 'http://localhost:3000', sameSite: 'Lax' },
   ]);
 });
@@ -43,12 +49,43 @@ test('admin dashboard visual evidence desktop and mobile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin');
   await expect(page.locator('h1')).toContainText('Panel de administración');
-  await page.screenshot({ path: path.join(evidenceDir, 'local-admin-1440x900.png'), fullPage: true });
+  await page.screenshot({
+    path: path.join(evidenceDir, 'local-admin-1440x900.png'),
+    fullPage: true,
+  });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
   await expect(page.locator('h1')).toContainText('Panel de administración');
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
   expect(overflow).toBeLessThanOrEqual(1);
-  await page.screenshot({ path: path.join(evidenceDir, 'local-admin-390x844.png'), fullPage: true });
+  await page.screenshot({
+    path: path.join(evidenceDir, 'local-admin-390x844.png'),
+    fullPage: true,
+  });
+});
+
+test('institutional user policy is visible and responsive', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/usuarios');
+  await expect(page.getByText('Cuentas autorizadas: 1/5')).toBeVisible();
+  await expect(page.getByText('Cambio de contraseña pendiente')).toBeVisible();
+  await expect(page.getByText(/pagos@comunidadalbas\.com\.mx/)).toBeVisible();
+  await page.screenshot({
+    path: path.join(evidenceDir, 'local-admin-usuarios-1440x900.png'),
+    fullPage: true,
+  });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+  await page.screenshot({
+    path: path.join(evidenceDir, 'local-admin-usuarios-390x844.png'),
+    fullPage: true,
+  });
 });

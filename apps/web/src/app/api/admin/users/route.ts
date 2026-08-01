@@ -3,6 +3,7 @@ import { prisma } from '@comunidad-albas/db';
 import { guardAdminRequest } from '@/lib/auth/guards';
 import { createUserSchema } from '@/lib/users/validation';
 import { hashPassword } from '@/lib/auth/password';
+import { MAX_ADMIN_USERS } from '@/lib/users/institutional-accounts';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,7 @@ export async function GET(request: NextRequest) {
       email: true,
       displayName: true,
       active: true,
+      mustChangePassword: true,
       lastLoginAt: true,
       createdAt: true,
       roles: { select: { role: true } },
@@ -29,6 +31,7 @@ export async function GET(request: NextRequest) {
       email: u.email,
       displayName: u.displayName,
       active: u.active,
+      mustChangePassword: u.mustChangePassword,
       lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
       createdAt: u.createdAt.toISOString(),
       roles: u.roles.map((r) => r.role),
@@ -57,17 +60,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Ya existe un usuario con ese correo' }, { status: 409 });
   }
 
+  const userCount = await prisma.user.count();
+  if (userCount >= MAX_ADMIN_USERS) {
+    return NextResponse.json(
+      { error: `El panel permite un máximo de ${MAX_ADMIN_USERS} usuarios` },
+      { status: 409 },
+    );
+  }
+
   const user = await prisma.user.create({
     data: {
       email: normalizedEmail,
       displayName: displayName.trim(),
       passwordHash: hashPassword(password),
+      mustChangePassword: true,
     },
   });
   await Promise.all(
-    roles.map((role) =>
-      prisma.roleAssignment.create({ data: { userId: user.id, role } }),
-    ),
+    roles.map((role) => prisma.roleAssignment.create({ data: { userId: user.id, role } })),
   );
 
   const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
@@ -90,5 +100,8 @@ export async function POST(request: NextRequest) {
     // Welcome email failure is non-blocking
   }
 
-  return NextResponse.json({ success: true, item: { id: user.id, email: normalizedEmail } }, { status: 201 });
+  return NextResponse.json(
+    { success: true, item: { id: user.id, email: normalizedEmail, mustChangePassword: true } },
+    { status: 201 },
+  );
 }

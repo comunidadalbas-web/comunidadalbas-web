@@ -1,6 +1,6 @@
 # Infraestructura y entorno
 
-Vercel: proyecto `comunidadalbas-web1`, root `apps/web`, Node 24.x. Despliegue de producción `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe`, Ready, creado 2026-07-31 09:40 CST.
+Vercel: proyecto `comunidadalbas-web1`, root `apps/web`, Node 24.x. Producción promovida desde la rama de administración; el despliegue anterior `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe` se conserva como rollback.
 
 | Variable | Obligatoria | Entorno | Uso | Estado |
 |---|---|---|---|---|

@@ -1,15 +1,9 @@
 # Preparación de despliegue
 
-Estado: **NO LISTO**.
+Estado: **LISTO**.
 
-Criterios aprobados: instalación estricta, typecheck, tests, build, Prisma validate/generate, sitio raíz, formulario de pagos y endpoint administrativo sin credencial = 401.
+Criterios aprobados: instalación estricta, typecheck, 90 pruebas unitarias, build, Prisma, 14 escenarios E2E, SMTP real, sitio raíz, formulario de pagos y endpoint administrativo sin credencial = 401.
 
-Bloqueos:
+Resueltos: secretos distintos, migraciones Neon, panel/roles, revisión móvil/escritorio, SMTP y `www`. La operación financiera requiere cargar primero edificios y departamentos reales; la interfaz bloquea movimientos mientras falten esos catálogos.
 
-1. Añadir `SESSION_SECRET` y `CSRF_SECRET` distintos y fuertes en Vercel.
-2. Reconciliar migraciones con Neon sin pérdida de datos.
-3. Validar login/panel/roles en preview.
-4. Ejecutar suite completa final y revisión visual móvil/escritorio.
-5. Resolver o aceptar explícitamente SMTP y `www`.
-
-Rollback propuesto: conservar `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe` y promoverlo de nuevo si el preview/nuevo despliegue falla. No ejecutar migraciones irreversibles durante la promoción.
+Rollback: conservar `dpl_A982HhjJjTXjeuYc8zQMqDi6NUTe`. La migración institucional es de datos/política y conserva el hash de contraseña previo.

@@ -41,16 +41,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   if (data.password) {
     await prisma.user.update({
       where: { id },
-      data: { passwordHash: hashPassword(data.password) },
+      data: { passwordHash: hashPassword(data.password), mustChangePassword: true },
     });
   }
 
   if (data.roles) {
     await prisma.roleAssignment.deleteMany({ where: { userId: id } });
     await Promise.all(
-      data.roles.map((role) =>
-        prisma.roleAssignment.create({ data: { userId: id, role } }),
-      ),
+      data.roles.map((role) => prisma.roleAssignment.create({ data: { userId: id, role } })),
     );
   }
 
@@ -71,6 +69,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       email: true,
       displayName: true,
       active: true,
+      mustChangePassword: true,
       roles: { select: { role: true } },
     },
   });
@@ -89,6 +88,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     after: {
       displayName: user.displayName,
       active: user.active,
+      mustChangePassword: user.mustChangePassword,
       roles: user.roles.map((r) => r.role),
     },
   });
@@ -122,10 +122,14 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
   const adminCount = await prisma.roleAssignment.count({ where: { role: 'admin' } });
   const isLastAdmin =
-    (await prisma.roleAssignment.findUnique({ where: { userId_role: { userId: id, role: 'admin' } } })) !== null &&
-    adminCount <= 1;
+    (await prisma.roleAssignment.findUnique({
+      where: { userId_role: { userId: id, role: 'admin' } },
+    })) !== null && adminCount <= 1;
   if (isLastAdmin) {
-    return NextResponse.json({ error: 'No se puede eliminar el último administrador' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'No se puede eliminar el último administrador' },
+      { status: 400 },
+    );
   }
 
   const { writeAuditLog, AUDIT_ACTIONS } = await import('@/lib/audit');
@@ -141,7 +145,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   const auditRows = await prisma.auditLog.findMany({ where: { userId: id }, select: { id: true } });
   await Promise.all(
     auditRows.map((row) =>
-      prisma.auditLog.update({ where: { id: row.id }, data: { userId: null } }).catch(() => undefined),
+      prisma.auditLog
+        .update({ where: { id: row.id }, data: { userId: null } })
+        .catch(() => undefined),
     ),
   );
   await prisma.user.delete({ where: { id } });

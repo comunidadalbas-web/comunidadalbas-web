@@ -5,29 +5,31 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const NAV_ITEMS = [
-  { href: '/admin', label: 'Panel' },
-  { href: '/admin/solicitudes', label: 'Solicitudes' },
-  { href: '/admin/comunicados', label: 'Comunicados' },
-  { href: '/admin/blog', label: 'Blog' },
-  { href: '/admin/campanas', label: 'Campañas' },
-  { href: '/admin/calendario', label: 'Calendario' },
-  { href: '/admin/edificios', label: 'Edificios' },
-  { href: '/admin/unidades', label: 'Unidades' },
-  { href: '/admin/conceptos', label: 'Conceptos' },
-  { href: '/admin/documentos', label: 'Documentos' },
-  { href: '/admin/pagos', label: 'Pagos' },
-  { href: '/admin/egresos', label: 'Egresos' },
-  { href: '/admin/informes', label: 'Informes' },
-  { href: '/admin/usuarios', label: 'Usuarios' },
-  { href: '/admin/auditoria', label: 'Auditoría' },
+  { href: '/admin', label: 'Panel', roles: [] },
+  { href: '/admin/solicitudes', label: 'Solicitudes', roles: ['admin', 'secretario', 'vocal'] },
+  { href: '/admin/comunicados', label: 'Comunicados', roles: ['admin', 'director', 'secretario'] },
+  { href: '/admin/blog', label: 'Blog', roles: ['admin', 'director', 'secretario'] },
+  { href: '/admin/campanas', label: 'Campañas', roles: ['admin', 'director', 'secretario'] },
+  { href: '/admin/calendario', label: 'Calendario', roles: ['admin', 'director', 'secretario'] },
+  { href: '/admin/edificios', label: 'Edificios', roles: ['admin', 'director'] },
+  { href: '/admin/unidades', label: 'Unidades', roles: ['admin', 'director'] },
+  { href: '/admin/conceptos', label: 'Conceptos', roles: ['admin', 'director', 'tesorero'] },
+  { href: '/admin/documentos', label: 'Documentos', roles: ['admin', 'director', 'secretario'] },
+  { href: '/admin/pagos', label: 'Pagos', roles: ['admin', 'tesorero'] },
+  { href: '/admin/egresos', label: 'Egresos', roles: ['admin', 'tesorero'] },
+  { href: '/admin/informes', label: 'Informes', roles: ['admin', 'director', 'tesorero'] },
+  { href: '/admin/usuarios', label: 'Usuarios', roles: ['admin'] },
+  { href: '/admin/auditoria', label: 'Auditoría', roles: ['admin'] },
 ];
 
 export default function AdminNav({
   displayName,
   email,
+  roles,
 }: {
   displayName: string;
   email: string;
+  roles: string[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -51,7 +53,9 @@ export default function AdminNav({
         </span>
       </div>
       <div className="admin-nav-links">
-        {NAV_ITEMS.map((item) => (
+        {NAV_ITEMS.filter(
+          (item) => item.roles.length === 0 || item.roles.some((role) => roles.includes(role)),
+        ).map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -61,12 +65,7 @@ export default function AdminNav({
           </Link>
         ))}
       </div>
-      <button
-        type="button"
-        className="btn btn-ghost"
-        onClick={handleLogout}
-        disabled={loggingOut}
-      >
+      <button type="button" className="btn btn-ghost" onClick={handleLogout} disabled={loggingOut}>
         {loggingOut ? 'Saliendo...' : 'Cerrar sesión'}
       </button>
     </nav>

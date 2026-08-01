@@ -9,6 +9,11 @@
 - `apps/web/src/app/api/admin/integrations/mercadopago/test-spei-order/route.ts`
 - `apps/web/src/__tests__/pagos-regression.test.ts`
 - `apps/web/src/lib/auth/session.ts`
+- `apps/web/src/app/admin/{usuarios,unidades,documentos,pagos,egresos}/*`
+- `apps/web/src/app/api/admin/{users,units,charges,payments,documents,expenses}/*`
+- `apps/web/src/lib/{users,finance,statistics,mercadopago}/*`
+- `packages/db/prisma/migrations/20260801191500_institutional_admin_accounts/migration.sql`
+- `apps/web/e2e/admin-mutations.spec.ts`
 - `apps/web/vitest.config.ts`
 - `.env.example`
 - `docs/audit/2026-08-01-codex/*`

@@ -34,7 +34,7 @@ Nota: `SESSION_SECRET` y `CSRF_SECRET` deben **diferir**. En tests se usa un val
 
 ```powershell
 # Desde la raíz del repo
-$env:ADMIN_INITIAL_EMAIL = "admin@comunidadalbas.com.mx"
+$env:ADMIN_INITIAL_EMAIL = "presidencia@comunidadalbas.com.mx"
 $env:ADMIN_INITIAL_PASSWORD = "cambia-esta-contrasena-fuerte"
 $env:ADMIN_INITIAL_NAME = "Administración"
 pnpm db:seed-admin

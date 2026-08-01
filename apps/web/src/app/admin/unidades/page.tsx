@@ -1,67 +1,42 @@
-import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { prisma } from '@comunidad-albas/db';
-
-export const metadata: Metadata = {
-  title: 'Edificios y departamentos',
-  robots: { index: false, follow: false },
-};
+import { getSessionFromRequest, CSRF_COOKIE } from '@/lib/auth/session';
+import { ROLES } from '@/lib/auth/guards';
+import UnitsClient from './units-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function UnitsPage() {
-  const buildings = await prisma.building.findMany({
-    orderBy: { code: 'asc' },
-    include: { units: { orderBy: { apartmentNumber: 'asc' } } },
-  });
-
-  const totalUnits = buildings.reduce((acc, b) => acc + b.units.length, 0);
-
-  if (buildings.length === 0) {
-    return (
-      <>
-        <h1 className="page-title">Edificios y departamentos</h1>
-        <div className="alert alert-info">
-          Aún no se ha registrado el catálogo de edificios. Se cargará desde la
-          documentación institucional en la Fase D.
-        </div>
-      </>
-    );
-  }
-
+  const session = await getSessionFromRequest();
+  if (!session) redirect('/login');
+  if (!session.roles.includes(ROLES.ADMIN) && !session.roles.includes(ROLES.DIRECTOR))
+    redirect('/admin');
+  const [buildings, units] = await Promise.all([
+    prisma.building.findMany({ where: { status: 'ACTIVE' }, orderBy: { code: 'asc' } }),
+    prisma.unit.findMany({
+      orderBy: [{ building: { code: 'asc' } }, { apartmentNumber: 'asc' }],
+      include: { building: { select: { code: true, name: true } } },
+    }),
+  ]);
+  const csrfCookie = (await cookies()).get(CSRF_COOKIE)?.value ?? '';
   return (
     <>
       <h1 className="page-title">Edificios y departamentos</h1>
-      <p className="page-subtitle">
-        {buildings.length} edificios · {totalUnits} departamentos
-      </p>
-
-      {buildings.map((b) => (
-        <section key={b.id} className="info-section">
-          <h2>{b.name} <span className="text-muted">({b.code})</span></h2>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table-admin">
-              <thead>
-                <tr>
-                  <th>Departamento</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {b.units.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.apartmentNumber}</td>
-                    <td>
-                      <span className={u.status === 'ACTIVE' ? 'badge badge-resolved' : 'badge badge-archived'}>
-                        {u.status === 'ACTIVE' ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ))}
+      <p className="page-subtitle">Catálogo operativo para cargos, pagos y estados de cuenta</p>
+      <UnitsClient
+        csrfToken={csrfCookie.split('.')[0] ?? ''}
+        buildings={buildings.map((b) => ({ id: b.id, code: b.code, name: b.name }))}
+        items={units.map((u) => ({
+          id: u.id,
+          code: u.code,
+          apartmentNumber: u.apartmentNumber,
+          buildingId: u.buildingId,
+          buildingCode: u.building.code,
+          buildingName: u.building.name,
+          status: u.status,
+        }))}
+      />
     </>
   );
 }
