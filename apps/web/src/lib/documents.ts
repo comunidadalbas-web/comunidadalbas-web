@@ -46,7 +46,7 @@ export const DOCUMENT_CATEGORY_DETAILS: Record<
   },
 };
 
-export const DOCUMENT_STORAGE_PROVIDERS = ['R2', 'VERCEL_BLOB', 'EXTERNAL'] as const;
+export const DOCUMENT_STORAGE_PROVIDERS = ['SUPABASE', 'VERCEL_BLOB', 'EXTERNAL'] as const;
 export type DocumentStorageProvider = (typeof DOCUMENT_STORAGE_PROVIDERS)[number];
 
 export const DOCUMENT_MAX_BYTES = 20 * 1024 * 1024;

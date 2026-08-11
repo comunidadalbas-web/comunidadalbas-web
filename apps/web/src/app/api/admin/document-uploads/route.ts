@@ -1,11 +1,4 @@
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  HeadObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { createClient } from '@supabase/supabase-js';
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -32,25 +25,13 @@ const completeSchema = z.object({
 
 function config() {
   const values = {
-    accountId: process.env.R2_ACCOUNT_ID,
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-    bucket: process.env.R2_BUCKET_NAME,
-    publicBaseUrl: process.env.R2_PUBLIC_BASE_URL,
+    url: process.env.SUPABASE_URL,
+    publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    bucket: process.env.SUPABASE_DOCUMENTS_BUCKET,
   };
   if (Object.values(values).some((value) => !value)) return null;
   return values as Record<keyof typeof values, string>;
-}
-
-function client(settings: NonNullable<ReturnType<typeof config>>) {
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${settings.accountId}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: settings.accessKeyId,
-      secretAccessKey: settings.secretAccessKey,
-    },
-  });
 }
 
 function safeFilename(filename: string) {
@@ -64,10 +45,6 @@ function safeFilename(filename: string) {
       .replace(/^-+|-+$/g, '')
       .slice(0, 80) || 'documento';
   return `${base}.pdf`;
-}
-
-function publicUrl(baseUrl: string, key: string) {
-  return `${baseUrl.replace(/\/$/, '')}/${key.split('/').map(encodeURIComponent).join('/')}`;
 }
 
 function signCompletion(secret: string, payload: string) {
@@ -113,13 +90,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          'Cloudflare R2 aún no está configurado. Puedes registrar mientras tanto una URL HTTPS externa.',
+          'Supabase Storage aún no está configurado. Puedes registrar mientras tanto una URL HTTPS externa.',
       },
       { status: 503 },
     );
 
   const body = await request.json().catch(() => ({}));
-  const storage = client(settings);
+  const storage = createClient(settings.url, settings.serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  }).storage.from(settings.bucket);
 
   if (body.action === 'authorize') {
     const parsed = authorizeSchema.safeParse(body);
@@ -131,21 +110,27 @@ export async function POST(request: NextRequest) {
 
     const now = new Date();
     const key = `public/documents/${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, '0')}/${randomUUID()}-${safeFilename(parsed.data.filename)}`;
-    const command = new PutObjectCommand({
-      Bucket: settings.bucket,
-      Key: key,
-      ContentType: 'application/pdf',
-      ContentLength: parsed.data.size,
-      CacheControl: 'public, max-age=3600',
-    });
-    const uploadUrl = await getSignedUrl(storage, command, { expiresIn: 10 * 60 });
-    const completionToken = makeCompletionToken(settings.secretAccessKey, {
+    const { data, error } = await storage.createSignedUploadUrl(key, { upsert: false });
+    if (error)
+      return NextResponse.json(
+        { error: `No se pudo autorizar la carga: ${error.message}` },
+        { status: 502 },
+      );
+
+    const completionToken = makeCompletionToken(settings.serviceRoleKey, {
       key,
       size: parsed.data.size,
       userId: guard.session.userId,
-      expiresAt: Date.now() + 15 * 60 * 1000,
+      expiresAt: Date.now() + 2 * 60 * 60 * 1000,
     });
-    return NextResponse.json({ uploadUrl, key, completionToken });
+    return NextResponse.json({
+      supabaseUrl: settings.url,
+      publishableKey: settings.publishableKey,
+      bucket: settings.bucket,
+      key,
+      uploadToken: data.token,
+      completionToken,
+    });
   }
 
   if (body.action === 'complete') {
@@ -156,7 +141,7 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
 
-    const signed = verifyCompletionToken(settings.secretAccessKey, parsed.data.completionToken);
+    const signed = verifyCompletionToken(settings.serviceRoleKey, parsed.data.completionToken);
     if (
       !signed ||
       signed.expiresAt < Date.now() ||
@@ -169,31 +154,20 @@ export async function POST(request: NextRequest) {
         { status: 403 },
       );
 
-    const cleanup = () =>
-      storage
-        .send(new DeleteObjectCommand({ Bucket: settings.bucket, Key: parsed.data.key }))
-        .catch(() => undefined);
-    const head = await storage.send(
-      new HeadObjectCommand({ Bucket: settings.bucket, Key: parsed.data.key }),
-    );
-    if (head.ContentLength !== parsed.data.size || head.ContentType !== 'application/pdf') {
+    const cleanup = () => storage.remove([parsed.data.key]).catch(() => undefined);
+    const { data: storedFile, error: downloadError } = await storage.download(parsed.data.key);
+    if (downloadError || !storedFile) {
       await cleanup();
       return NextResponse.json(
-        { error: 'El archivo almacenado no coincide con la carga autorizada.' },
+        { error: 'No se pudo verificar el archivo almacenado.' },
         { status: 400 },
       );
     }
-    const storedObject = await storage.send(
-      new GetObjectCommand({ Bucket: settings.bucket, Key: parsed.data.key }),
-    );
-    const bytes = storedObject.Body
-      ? Buffer.from(await storedObject.Body.transformToByteArray())
-      : Buffer.alloc(0);
-    const signature = bytes.subarray(0, 5).toString('ascii');
-    if (signature !== '%PDF-') {
+    const bytes = Buffer.from(await storedFile.arrayBuffer());
+    if (bytes.length !== parsed.data.size || bytes.subarray(0, 5).toString('ascii') !== '%PDF-') {
       await cleanup();
       return NextResponse.json(
-        { error: 'El contenido cargado no es un PDF válido.' },
+        { error: 'El archivo almacenado no coincide con un PDF válido.' },
         { status: 400 },
       );
     }
@@ -206,19 +180,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const { data: publicLocation } = storage.getPublicUrl(parsed.data.key);
     await writeAuditLog({
       userId: guard.session.userId,
       action: 'DOCUMENT_FILE_UPLOAD',
       entityType: 'DocumentFile',
       entityId: parsed.data.key,
-      after: { storageProvider: 'R2', size: parsed.data.size, sha256: parsed.data.sha256 },
+      after: { storageProvider: 'SUPABASE', size: parsed.data.size, sha256: verifiedHash },
     });
     return NextResponse.json({
-      url: publicUrl(settings.publicBaseUrl, parsed.data.key),
+      url: publicLocation.publicUrl,
       key: parsed.data.key,
       size: parsed.data.size,
-      sha256: parsed.data.sha256.toLowerCase(),
-      storageProvider: 'R2',
+      sha256: verifiedHash,
+      storageProvider: 'SUPABASE',
     });
   }
 

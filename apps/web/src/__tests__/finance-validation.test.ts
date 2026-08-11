@@ -41,7 +41,7 @@ describe('finance validation', () => {
         visibility: 'PUBLIC',
         fileUrl: 'https://example.com/acta.pdf',
         fileSizeBytes: 8_000_000,
-        storageProvider: 'R2',
+        storageProvider: 'SUPABASE',
         storageKey: 'public/documents/2026/08/acta.pdf',
         sha256: 'a'.repeat(64),
         approved: true,

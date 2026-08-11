@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { DOCUMENT_MAX_BYTES, DOCUMENT_RECOMMENDED_BYTES, formatFileSize } from '@/lib/documents';
 
 interface UploadedDocument {
@@ -8,7 +9,7 @@ interface UploadedDocument {
   key: string;
   size: number;
   sha256: string;
-  storageProvider: 'R2';
+  storageProvider: 'SUPABASE';
 }
 
 interface Props {
@@ -57,13 +58,16 @@ export default function DocumentUploadField({ csrfToken, onUploaded }: Props) {
       const authorization = await authorize.json();
       if (!authorize.ok) throw new Error(authorization.error);
 
-      const put = await fetch(authorization.uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/pdf' },
-        body: file,
+      const supabase = createClient(authorization.supabaseUrl, authorization.publishableKey, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
       });
-      if (!put.ok)
-        throw new Error('Cloudflare R2 rechazó la transferencia. Revisa el CORS del bucket.');
+      const { error: uploadError } = await supabase.storage
+        .from(authorization.bucket)
+        .uploadToSignedUrl(authorization.key, authorization.uploadToken, file, {
+          contentType: 'application/pdf',
+        });
+      if (uploadError)
+        throw new Error(`Supabase rechazó la transferencia: ${uploadError.message}`);
 
       const complete = await fetch('/api/admin/document-uploads', {
         method: 'POST',

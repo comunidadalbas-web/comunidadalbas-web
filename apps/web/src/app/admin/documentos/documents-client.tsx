@@ -127,10 +127,11 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
         </div>
       )}
       <div className="alert alert-info">
-        <strong>Cómo funciona:</strong> carga un PDF público en Cloudflare R2 o pega una URL HTTPS
-        institucional. El sistema registra procedencia, tamaño y huella SHA-256. El documento sólo
-        aparece en <code>/documentos</code> cuando su visibilidad es <strong>Público</strong> y
-        marcas la aprobación.
+        <strong>Carga directa segura:</strong> el PDF viaja desde este panel a Supabase Storage con
+        una autorización temporal; la clave administrativa nunca llega al navegador. También puedes
+        pegar una URL HTTPS institucional. El sistema registra procedencia, tamaño y huella SHA-256.
+        El documento sólo aparece en <code>/documentos</code> cuando su visibilidad es{' '}
+        <strong>Público</strong> y marcas la aprobación.
       </div>
       <div className="card" style={{ marginBottom: '1rem' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '.6rem' }}>Qué significa cada campo</h2>
