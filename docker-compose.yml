@@ -1,12 +1,12 @@
 services:
   db:
-    image: postgres:18-alpine
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: albas
       POSTGRES_PASSWORD: albas_dev
       POSTGRES_DB: comunidad_albas
     ports:
-      - "5432:5432"
+      - "55432:5432"
     volumes:
       - albas_pgdata:/var/lib/postgresql/data
     healthcheck:

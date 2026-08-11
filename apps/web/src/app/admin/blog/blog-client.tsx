@@ -12,6 +12,8 @@ interface BlogPost {
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  commentsEnabled: boolean;
+  commentCounts: { total: number; pending: number; published: number };
   authorName: string;
   publishedAt: string | null;
   createdAt: string;
@@ -114,6 +116,7 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
           coverImageUrl: form.coverImageUrl,
           coverImageAlt: form.coverImageAlt,
           status: form.status,
+          commentsEnabled: editing?.commentsEnabled ?? false,
         }),
       });
       const data = await res.json();
@@ -130,6 +133,8 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
         coverImageUrl: data.item.coverImageUrl ?? null,
         coverImageAlt: data.item.coverImageAlt ?? null,
         status: data.item.status,
+        commentsEnabled: data.item.commentsEnabled ?? false,
+        commentCounts: editing?.commentCounts ?? { total: 0, pending: 0, published: 0 },
         authorName: editing ? editing.authorName : (data.item.authorName ?? ''),
         publishedAt: data.item.publishedAt ?? null,
         createdAt: editing ? editing.createdAt : new Date().toISOString(),
@@ -177,6 +182,21 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
       setCount((c) => Math.max(0, c - 1));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error de conexión');
+    }
+  };
+
+  const toggleComments = async (p: BlogPost) => {
+    try {
+      const res = await fetch(`/api/admin/blog/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
+        body: JSON.stringify({ commentsEnabled: !p.commentsEnabled }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo actualizar');
+      setRows((current) => current.map((row) => row.id === p.id ? { ...row, commentsEnabled: data.item.commentsEnabled } : row));
+    } catch (reason) {
+      alert(reason instanceof Error ? reason.message : 'No se pudo actualizar');
     }
   };
 
@@ -304,6 +324,7 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
                 <th>Autor</th>
                 <th>Estado</th>
                 <th>Publicado</th>
+                <th>Opiniones</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -315,6 +336,12 @@ export default function BlogClient({ items, total, csrfToken }: Props) {
                   <td>{p.authorName}</td>
                   <td><span className={statusBadge(p.status)}>{STATUS_LABEL[p.status]}</span></td>
                   <td>{p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('es-MX') : '—'}</td>
+                  <td>
+                    <div>{p.commentCounts.total} totales · {p.commentCounts.pending} pendientes · {p.commentCounts.published} publicadas</div>
+                    <button className="btn btn-ghost" onClick={() => toggleComments(p)}>
+                      {p.commentsEnabled ? 'Deshabilitar opiniones' : 'Habilitar opiniones'}
+                    </button>
+                  </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <button className="btn btn-ghost" onClick={() => openEdit(p)}>Editar</button>{' '}
                     {p.status === 'PUBLISHED' ? (

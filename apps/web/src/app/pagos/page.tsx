@@ -34,6 +34,7 @@ interface OrderResult {
 }
 
 type Metodo = 'tarjeta' | 'spei';
+const MONTHLY_SUBSCRIPTION_URL = 'https://mpago.la/1zLpGTV';
 
 export default function PagosPage() {
   const [config, setConfig] = useState<Config | null>(null);
@@ -139,6 +140,24 @@ export default function PagosPage() {
         Realiza tu cuota condominal o una aportación extraordinaria de forma segura con tarjeta
         o mediante transferencia bancaria (SPEI) a través de Mercado Pago.
       </p>
+
+      <section className="card" aria-labelledby="subscription-title" style={{ maxWidth: 560, margin: '0 auto 1.5rem' }}>
+        <h2 id="subscription-title" style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>Pago automático mensual</h2>
+        <p><strong>Suscripción voluntaria a la cuota de mantenimiento</strong></p>
+        <p>
+          ¿Prefieres olvidarte de realizar el pago cada mes? Puedes activar voluntariamente el
+          pago automático mensual mediante Mercado Pago. La suscripción es opcional y los medios
+          de pago actuales continúan disponibles.
+        </p>
+        <p style={{ fontSize: '0.9rem' }}>
+          Antes de continuar consulta nuestro <a href="/privacidad">Aviso de Privacidad</a>.
+          La autorización y los cobros recurrentes son procesados por Mercado Pago.
+        </p>
+        <a className="btn btn-secondary" href={MONTHLY_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer">
+          Suscribirme con Mercado Pago
+        </a>
+        <p className="form-help" style={{ marginTop: '0.5rem' }}>Cuota de mantenimiento: $100 MXN al mes, con cobro el día 10.</p>
+      </section>
 
       {retornoAlert && (
         <div className={`alert ${retornoAlert.type}`} style={{ maxWidth: 560, margin: '0 auto 1.5rem' }}>

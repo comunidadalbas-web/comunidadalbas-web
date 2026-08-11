@@ -17,8 +17,8 @@ export type {
   Payment, PaymentApplication, Expense,
   Document, User, RoleAssignment, AuditLog,
   ContactRequest, MercadoPagoOrder, MercadoPagoWebhookEvent,
-  Announcement, Campaign, CalendarEvent, BlogPost,
+  Announcement, Campaign, CalendarEvent, BlogPost, BlogComment, PasswordResetToken,
   RecordStatus, PaymentStatus, ExpenseStatus,
-  AnnouncementStatus, CampaignStatus, CalendarEventStatus, BlogPostStatus,
+  AnnouncementStatus, CampaignStatus, CalendarEventStatus, BlogPostStatus, BlogCommentStatus,
   Prisma,
 } from '../prisma/client/client';

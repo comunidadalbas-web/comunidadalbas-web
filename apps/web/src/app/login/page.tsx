@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 function LoginForm() {
   const router = useRouter();
@@ -13,6 +14,7 @@ function LoginForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'error' | 'success'>('idle');
   const [error, setError] = useState('');
   const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (status === 'success') {
@@ -72,16 +74,32 @@ function LoginForm() {
 
         <div className="form-group">
           <label className="form-label" htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            className="form-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              className="btn btn-ghost"
+              aria-pressed={showPassword}
+              aria-controls="password"
+              onClick={() => setShowPassword((value) => !value)}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            </button>
+          </div>
         </div>
+
+        <p style={{ margin: '-0.25rem 0 1rem' }}>
+          <Link href="/recuperar-contrasena">¿Olvidaste tu contraseña?</Link>
+        </p>
 
         <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
           {status === 'sending' ? 'Ingresando...' : 'Iniciar sesión'}

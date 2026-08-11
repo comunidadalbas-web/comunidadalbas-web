@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@comunidad-albas/db';
+import BlogComments from '@/components/blog-comments';
+import { toPublicComment } from '@/lib/blog-comments';
+import ShareLinks from '@/components/share-links';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +36,22 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
+  const commentRows = post.commentsEnabled
+    ? await prisma.blogComment.findMany({
+        where: { postId: post.id, parentId: null, status: 'PUBLISHED' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 21,
+        include: {
+          replies: {
+            where: { status: 'PUBLISHED' },
+            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+          },
+        },
+      })
+    : [];
+  const initialComments = commentRows.slice(0, 20);
+  const initialCursor = commentRows.length > 20 ? initialComments.at(-1)?.id ?? null : null;
+
   return (
     <article style={{ maxWidth: '760px', margin: '0 auto' }}>
       <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
@@ -57,6 +76,14 @@ export default async function BlogPostPage({ params }: PageProps) {
       )}
 
       <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{post.content}</div>
+      <ShareLinks title={post.title} path={`/blog/${post.slug}`} />
+      {post.commentsEnabled && (
+        <BlogComments
+          slug={post.slug}
+          initialItems={initialComments.map(toPublicComment)}
+          initialCursor={initialCursor}
+        />
+      )}
     </article>
   );
 }

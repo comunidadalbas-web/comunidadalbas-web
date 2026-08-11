@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import SiteHeader from '@/components/site-header';
 
 export const metadata: Metadata = {
   title: {
@@ -17,34 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body>
-        <Header />
+        <SiteHeader />
         <main className="main-content">{children}</main>
         <Footer />
       </body>
     </html>
-  );
-}
-
-function Header() {
-  return (
-    <header className="site-header">
-      <div className="header-inner">
-        <a href="/" className="site-logo">
-          Comunidad Albas
-        </a>
-        <button className="nav-toggle" aria-label="Menú de navegación">☰</button>
-        <nav className="main-nav">
-          <a href="/">Inicio</a>
-          <a href="/nosotros">Nosotros</a>
-          <a href="/comunicados">Comunicados</a>
-          <a href="/blog">Blog</a>
-          <a href="/calendario">Calendario</a>
-          <a href="/documentos">Documentos</a>
-          <a href="/pagos">Pagos</a>
-          <a href="/contacto">Contacto</a>
-        </nav>
-      </div>
-    </header>
   );
 }
 
@@ -63,6 +41,18 @@ function Footer() {
             <a href="mailto:contacto@comunidadalbas.com.mx">
               contacto@comunidadalbas.com.mx
             </a>
+          </p>
+          <p>
+            Secretaría<br />
+            <a href="mailto:secretaria@comunidadalbas.com.mx">secretaria@comunidadalbas.com.mx</a>
+          </p>
+          <p>
+            <a href="https://wa.me/525663011493" target="_blank" rel="noopener noreferrer">
+              WhatsApp Secretaría · 56 6301 1493
+            </a>
+          </p>
+          <p style={{ fontSize: '0.8rem' }}>
+            Información y orientación administrativa.<br />No es un canal de emergencias.
           </p>
           <p>
             <a href="/privacidad">Aviso de privacidad</a>

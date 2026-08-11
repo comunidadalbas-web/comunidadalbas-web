@@ -48,7 +48,7 @@ export default function HomePage() {
       <section className="info-section">
         <div className="alert alert-info">
           <strong>Pagos en línea activos.</strong> Ahora puedes pagar tu cuota condominal o una
-          aportación extraordinaria mediante transferencia SPEI a través de Mercado Pago.
+          aportación extraordinaria con tarjeta o mediante transferencia SPEI a través de Mercado Pago.
         </div>
         <p>
           <a href="/pagos" className="btn btn-primary">

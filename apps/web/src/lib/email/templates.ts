@@ -265,6 +265,44 @@ export function renderUserWelcome(
   };
 }
 
+export function renderPasswordReset(
+  data: { displayName: string; resetUrl: string; expiresInMinutes: number },
+  ctx: TemplateContext = defaultTemplateContext(),
+): { subject: string; html: string; text: string } {
+  const subject = 'Restablece tu contraseña — Comunidad Albas';
+  const html = layout(
+    subject,
+    `<h2 style="margin:0 0 16px;font-size:18px;">Hola, ${escapeHtml(data.displayName)}</h2>
+     <p style="margin:0 0 16px;font-size:14px;line-height:1.6;">
+       Recibimos una solicitud para restablecer la contraseña de tu cuenta institucional.
+     </p>
+     <p style="margin:0 0 20px;">
+       <a href="${escapeHtml(data.resetUrl)}" style="display:inline-block;background-color:#1a4a7a;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:14px;font-weight:bold;">Restablecer contraseña</a>
+     </p>
+     <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">
+       El enlace vence en ${data.expiresInMinutes} minutos y sólo puede utilizarse una vez.
+       Si no solicitaste el cambio, ignora este mensaje.
+     </p>`,
+    ctx,
+  );
+  return {
+    subject,
+    html,
+    text: textWrap(
+      [
+        `Hola, ${data.displayName}`,
+        '',
+        'Recibimos una solicitud para restablecer tu contraseña.',
+        `Enlace: ${data.resetUrl}`,
+        `Vence en ${data.expiresInMinutes} minutos y sólo puede utilizarse una vez.`,
+        '',
+        'Si no solicitaste el cambio, ignora este mensaje.',
+      ].join('\n'),
+      ctx,
+    ),
+  };
+}
+
 export interface SolicitudStatusData {
   name: string;
   folio: string;

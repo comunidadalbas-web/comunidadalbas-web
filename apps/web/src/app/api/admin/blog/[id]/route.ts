@@ -73,6 +73,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       ...(data.coverImageUrl !== undefined && { coverImageUrl: data.coverImageUrl || null }),
       ...(data.coverImageAlt !== undefined && { coverImageAlt: data.coverImageAlt?.trim() || null }),
       ...(data.status !== undefined && { status: data.status }),
+      ...(data.commentsEnabled !== undefined && { commentsEnabled: data.commentsEnabled }),
       ...(publishedAt !== undefined && { publishedAt }),
     },
   });
@@ -85,6 +86,17 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     entityId: item.id,
     after: { title: item.title, slug: item.slug, status: item.status },
   });
+
+  if (data.commentsEnabled !== undefined && data.commentsEnabled !== existing.commentsEnabled) {
+    await writeAuditLog({
+      userId: guard.session.userId,
+      action: AUDIT_ACTIONS.BLOG_COMMENTS_TOGGLE,
+      entityType: 'BlogPost',
+      entityId: item.id,
+      before: { commentsEnabled: existing.commentsEnabled },
+      after: { commentsEnabled: item.commentsEnabled },
+    });
+  }
 
   return NextResponse.json({ success: true, item });
 }

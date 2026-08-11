@@ -42,6 +42,7 @@ export const blogPostSchema = z.object({
   coverImageUrl: z.string().url('URL de imagen inválida').max(500).optional().or(z.literal('').transform(() => undefined)),
   coverImageAlt: z.string().max(240, 'El texto alternativo es demasiado largo').optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
+  commentsEnabled: z.boolean().optional(),
 });
 
 export type AnnouncementInput = z.infer<typeof announcementSchema>;

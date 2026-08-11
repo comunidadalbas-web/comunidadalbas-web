@@ -9,7 +9,7 @@ export default function PrivacidadPage() {
   return (
     <>
       <h1 className="page-title">Aviso de Privacidad Integral</h1>
-      <p className="page-subtitle">Sitio web Comunidad Albas · última actualización: 1 de agosto de 2026</p>
+      <p className="page-subtitle">Sitio web Comunidad Albas · última actualización: 11 de agosto de 2026</p>
 
       <section className="info-section">
         <h2>1. Responsable del tratamiento</h2>
@@ -96,6 +96,32 @@ export default function PrivacidadPage() {
           No se realizarán transferencias distintas de las necesarias para operar el servicio, cumplir
           una relación jurídica o atender una obligación legal, salvo que se informe y, cuando sea
           exigible, se obtenga el consentimiento correspondiente.
+        </p>
+      </section>
+
+      <section className="info-section">
+        <h2>Suscripciones y pagos recurrentes</h2>
+        <p>
+          La suscripción para cubrir automáticamente la cuota mensual de mantenimiento es
+          voluntaria. La autorización y los cobros recurrentes son procesados por Mercado Pago
+          conforme a sus propios términos. Comunidad Albas no solicita ni almacena el NIP, CVV
+          ni el número completo de la tarjeta.
+        </p>
+        <p>
+          Para dudas sobre este tratamiento escribe a{' '}
+          <a href="mailto:privacidad@comunidadalbas.com.mx">privacidad@comunidadalbas.com.mx</a>{' '}
+          o <a href="mailto:secretaria@comunidadalbas.com.mx">secretaria@comunidadalbas.com.mx</a>.
+        </p>
+      </section>
+
+      <section className="info-section">
+        <h2>Participación y opiniones en el blog</h2>
+        <p>
+          Cuando una publicación habilite opiniones, trataremos el nombre o alias, correo y texto
+          proporcionados para recibir, moderar y publicar la participación autorizada. El correo y
+          los datos técnicos mínimos de prevención de abuso serán visibles únicamente para personal
+          autorizado; no se publicarán correos, teléfonos, domicilios, direcciones IP ni otros
+          identificadores técnicos.
         </p>
       </section>
 

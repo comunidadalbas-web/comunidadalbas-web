@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { prisma } from '@comunidad-albas/db';
+import ShareLinks from '@/components/share-links';
 
 export const metadata: Metadata = {
   title: 'Campañas',
@@ -28,7 +29,7 @@ export default async function CampanasPage() {
           const collected = Number(c.collectedAmount);
           const pct = goal > 0 ? Math.min(100, Math.round((collected / goal) * 100)) : 0;
           return (
-            <article key={c.id} className="card" style={{ marginBottom: '1rem' }}>
+            <article id={`campana-${c.id}`} key={c.id} className="card" style={{ marginBottom: '1rem' }}>
               {c.imageUrl && (
                 <img
                   src={c.imageUrl}
@@ -69,6 +70,7 @@ export default async function CampanasPage() {
                   Concluye el {new Date(c.endsAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
               )}
+              <ShareLinks title={c.title} path={`/campanas#campana-${c.id}`} />
             </article>
           );
         })

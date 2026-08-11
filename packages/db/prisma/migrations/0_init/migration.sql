@@ -1,5 +1,5 @@
-Loaded Prisma config from prisma.config.ts.
-System.Management.Automation.RemoteException
+-- Historical CLI output retained as comments so the baseline remains valid SQL.
+-- The production migration is already marked as applied and must not be replayed.
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 

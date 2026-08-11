@@ -68,6 +68,13 @@ enum BlogPostStatus {
   ARCHIVED
 }
 
+enum BlogCommentStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
 model Building {
   id        String       @id @default(cuid())
   code      String       @unique
@@ -220,8 +227,10 @@ model BlogPost {
   coverImageUrl  String?
   coverImageAlt  String?
   status         BlogPostStatus  @default(DRAFT)
+  commentsEnabled Boolean        @default(false)
   authorId       String
   author         User            @relation(fields: [authorId], references: [id])
+  comments       BlogComment[]
   publishedAt    DateTime?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -239,8 +248,41 @@ model User {
   roles              RoleAssignment[]
   auditLogs          AuditLog[]
   blogPosts          BlogPost[]
+  passwordResetTokens PasswordResetToken[]
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model BlogComment {
+  id                String            @id @default(cuid())
+  postId            String
+  post              BlogPost          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId          String?
+  parent            BlogComment?      @relation("BlogCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies           BlogComment[]     @relation("BlogCommentReplies")
+  displayName       String
+  email             String
+  body              String
+  status            BlogCommentStatus @default(PENDING)
+  isInstitutional   Boolean           @default(false)
+  ipHash            String?
+  userAgentHash     String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  @@index([postId, status, parentId, createdAt])
+  @@index([parentId, status, createdAt])
 }
 
 model RoleAssignment {
