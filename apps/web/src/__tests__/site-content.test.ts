@@ -43,4 +43,15 @@ describe('contenido y navegación', () => {
     expect(text).toContain('Suscripciones y pagos recurrentes');
     expect(text).toContain('Participación y opiniones en el blog');
   });
+
+  it('documentos organiza transparencia y mantiene el aviso de privacidad fijo', () => {
+    const page = source('src/app/documentos/page.tsx');
+    const categories = source('src/lib/documents.ts');
+    expect(page).toContain('Documentos y transparencia');
+    expect(page).toContain('Aviso de privacidad integral del sitio');
+    expect(page).toContain('Ver integridad');
+    expect(categories).toContain('Informes financieros trimestrales');
+    expect(categories).toContain('Actas de asambleas y reuniones');
+    expect(categories).toContain('Convocatorias oficiales');
+  });
 });

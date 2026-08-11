@@ -2,17 +2,30 @@
 
 import { useState } from 'react';
 import { DOCUMENT_VISIBILITIES } from '@/lib/finance/validation';
-import FileUploadField from '@/components/admin/file-upload-field';
+import DocumentUploadField from '@/components/admin/document-upload-field';
+import {
+  DOCUMENT_CATEGORIES,
+  DOCUMENT_CATEGORY_DETAILS,
+  formatFileSize,
+  type DocumentCategory,
+  type DocumentStorageProvider,
+} from '@/lib/documents';
 
 type Visibility = (typeof DOCUMENT_VISIBILITIES)[number];
 interface DocumentItem {
   id: string;
   title: string;
+  description: string;
   category: string;
   version: string;
+  documentDate: string;
   visibility: Visibility;
   fileUrl: string;
+  fileSizeBytes: number | null;
+  storageProvider: string;
+  storageKey: string | null;
   sha256: string;
+  isPermanent: boolean;
   approved: boolean;
   approvedAt: string | null;
 }
@@ -27,11 +40,17 @@ const visibilityLabels: Record<Visibility, string> = {
 };
 const blank = {
   title: '',
-  category: 'Institucional',
+  description: '',
+  category: 'Estatutos y reglamentos' as DocumentCategory,
   version: '1.0',
+  documentDate: '',
   visibility: 'RESTRICTED' as Visibility,
   fileUrl: '',
+  fileSizeBytes: null as number | null,
+  storageProvider: 'EXTERNAL' as DocumentStorageProvider,
+  storageKey: null as string | null,
   sha256: '',
+  isPermanent: true,
   approved: false,
 };
 
@@ -50,11 +69,17 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
   const edit = (item: DocumentItem) => {
     setForm({
       title: item.title,
-      category: item.category,
+      description: item.description,
+      category: item.category as DocumentCategory,
       version: item.version,
+      documentDate: item.documentDate,
       visibility: item.visibility,
       fileUrl: item.fileUrl,
+      fileSizeBytes: item.fileSizeBytes,
+      storageProvider: item.storageProvider as DocumentStorageProvider,
+      storageKey: item.storageKey,
       sha256: item.sha256,
+      isPermanent: item.isPermanent,
       approved: item.approved,
     });
     setEditing(item);
@@ -102,20 +127,37 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
         </div>
       )}
       <div className="alert alert-info">
-        <strong>Cómo funciona:</strong> carga un PDF público desde tu equipo o pega una URL HTTPS
-        institucional. Al cargarlo, el sistema completa la URL y calcula automáticamente la huella
-        SHA-256. El documento sólo aparece en <code>/documentos</code> cuando su visibilidad es
-        <strong> Público</strong> y marcas la aprobación.
+        <strong>Cómo funciona:</strong> carga un PDF público en Cloudflare R2 o pega una URL HTTPS
+        institucional. El sistema registra procedencia, tamaño y huella SHA-256. El documento sólo
+        aparece en <code>/documentos</code> cuando su visibilidad es <strong>Público</strong> y
+        marcas la aprobación.
       </div>
       <div className="card" style={{ marginBottom: '1rem' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '.6rem' }}>Qué significa cada campo</h2>
         <ul style={{ marginLeft: '1.25rem', lineHeight: 1.6 }}>
-          <li><strong>Título:</strong> nombre claro que verá la comunidad.</li>
-          <li><strong>Categoría:</strong> agrupa documentos, por ejemplo Normativa, Institucional o Transparencia.</li>
-          <li><strong>Versión:</strong> identifica la edición; usa 1.0 si es la primera publicada.</li>
-          <li><strong>Público:</strong> puede mostrarse en el sitio al aprobarlo.</li>
-          <li><strong>Restringido o privado:</strong> sólo se registra en el panel; la URL externa debe tener su propio control de acceso.</li>
-          <li><strong>SHA-256:</strong> huella digital de 64 caracteres que permite detectar si el archivo fue sustituido.</li>
+          <li>
+            <strong>Título:</strong> nombre claro que verá la comunidad.
+          </li>
+          <li>
+            <strong>Categoría:</strong> determina su ubicación en la biblioteca de transparencia.
+          </li>
+          <li>
+            <strong>Versión:</strong> identifica la edición; usa 1.0 si es la primera publicada.
+          </li>
+          <li>
+            <strong>Fecha documental:</strong> fecha del acta, informe, convocatoria o edición.
+          </li>
+          <li>
+            <strong>Público:</strong> puede mostrarse en el sitio al aprobarlo.
+          </li>
+          <li>
+            <strong>Restringido o privado:</strong> sólo se registra en el panel; la URL externa
+            debe tener su propio control de acceso.
+          </li>
+          <li>
+            <strong>SHA-256:</strong> huella digital de 64 caracteres que permite detectar si el
+            archivo fue sustituido.
+          </li>
         </ul>
       </div>
       <button
@@ -141,11 +183,22 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
             </label>
             <label className="form-group">
               <span className="form-label">Categoría *</span>
-              <input
-                className="form-input"
+              <select
+                className="form-select"
                 value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-              />
+                onChange={(e) => {
+                  const category = e.target.value as DocumentCategory;
+                  setForm({
+                    ...form,
+                    category,
+                    isPermanent: DOCUMENT_CATEGORY_DETAILS[category].permanent,
+                  });
+                }}
+              >
+                {DOCUMENT_CATEGORIES.map((category) => (
+                  <option key={category}>{category}</option>
+                ))}
+              </select>
             </label>
             <label className="form-group">
               <span className="form-label">Versión</span>
@@ -153,6 +206,15 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
                 className="form-input"
                 value={form.version}
                 onChange={(e) => setForm({ ...form, version: e.target.value })}
+              />
+            </label>
+            <label className="form-group">
+              <span className="form-label">Fecha documental</span>
+              <input
+                className="form-input"
+                type="date"
+                value={form.documentDate}
+                onChange={(e) => setForm({ ...form, documentDate: e.target.value })}
               />
             </label>
             <label className="form-group">
@@ -170,18 +232,27 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
               </select>
             </label>
           </div>
+          <label className="form-group">
+            <span className="form-label">Descripción pública</span>
+            <textarea
+              className="form-textarea"
+              rows={3}
+              maxLength={500}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </label>
           {form.visibility === 'PUBLIC' ? (
-            <FileUploadField
-              kind="document"
-              label="Cargar PDF desde este equipo"
-              value={form.fileUrl}
+            <DocumentUploadField
               csrfToken={csrfToken}
-              help="PDF público, máximo 25 MB. La carga no lo publica por sí sola: todavía debes guardar y aprobar el registro. No cargues información confidencial."
               onUploaded={(file) =>
                 setForm((current) => ({
                   ...current,
                   fileUrl: file.url,
-                  sha256: file.sha256 ?? current.sha256,
+                  fileSizeBytes: file.size,
+                  storageProvider: file.storageProvider,
+                  storageKey: file.key,
+                  sha256: file.sha256,
                 }))
               }
             />
@@ -197,10 +268,26 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
               className="form-input"
               type="url"
               value={form.fileUrl}
-              onChange={(e) => setForm({ ...form, fileUrl: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  fileUrl: e.target.value,
+                  storageProvider: 'EXTERNAL',
+                  storageKey: null,
+                  fileSizeBytes: null,
+                })
+              }
             />
-            <small className="form-help">Se completa automáticamente al cargar un PDF; también puedes pegar una URL institucional existente.</small>
+            <small className="form-help">
+              Se completa automáticamente al cargar un PDF; también puedes pegar una URL
+              institucional existente.
+            </small>
           </label>
+          {form.fileSizeBytes && (
+            <p className="text-muted">
+              Archivo registrado: {formatFileSize(form.fileSizeBytes)} · {form.storageProvider}
+            </p>
+          )}
           <label className="form-group">
             <span className="form-label">SHA-256 *</span>
             <input
@@ -209,7 +296,18 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
               maxLength={64}
               onChange={(e) => setForm({ ...form, sha256: e.target.value.toLowerCase() })}
             />
-            <small className="form-help">Se calcula automáticamente al cargar. Si usas una URL externa, obtén la huella del archivo original antes de registrarlo.</small>
+            <small className="form-help">
+              Se calcula automáticamente al cargar. Si usas una URL externa, obtén la huella del
+              archivo original antes de registrarlo.
+            </small>
+          </label>
+          <label className="form-checkbox">
+            <input
+              type="checkbox"
+              checked={form.isPermanent}
+              onChange={(e) => setForm({ ...form, isPermanent: e.target.checked })}
+            />
+            <span>Documento permanente (protege el registro contra eliminación accidental)</span>
           </label>
           <label className="form-checkbox">
             <input
@@ -240,6 +338,7 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
                 <th>Documento</th>
                 <th>Categoría</th>
                 <th>Versión</th>
+                <th>Fecha / tamaño</th>
                 <th>Visibilidad</th>
                 <th>Integridad</th>
                 <th>Acciones</th>
@@ -256,10 +355,24 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
                   <td>{item.category}</td>
                   <td>{item.version}</td>
                   <td>
+                    {item.documentDate || 'Sin fecha'}
+                    {item.fileSizeBytes ? (
+                      <>
+                        <br />
+                        <span className="text-muted">{formatFileSize(item.fileSizeBytes)}</span>
+                      </>
+                    ) : null}
+                  </td>
+                  <td>
                     <span className="badge badge-review">{visibilityLabels[item.visibility]}</span>
                     {item.approved && (
                       <span className="badge badge-resolved" style={{ marginLeft: '.25rem' }}>
                         Aprobado
+                      </span>
+                    )}
+                    {item.isPermanent && (
+                      <span className="badge badge-review" style={{ marginLeft: '.25rem' }}>
+                        Permanente
                       </span>
                     )}
                   </td>
@@ -270,7 +383,16 @@ export default function DocumentsClient({ items, csrfToken }: Props) {
                     <button className="btn btn-ghost" onClick={() => edit(item)}>
                       Editar
                     </button>
-                    <button className="btn btn-ghost" onClick={() => remove(item)}>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => remove(item)}
+                      disabled={item.isPermanent}
+                      title={
+                        item.isPermanent
+                          ? 'Edita el registro y desmarca Permanente antes de eliminarlo.'
+                          : undefined
+                      }
+                    >
                       Eliminar
                     </button>
                   </td>

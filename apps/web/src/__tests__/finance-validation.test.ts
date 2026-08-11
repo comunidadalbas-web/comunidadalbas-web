@@ -35,10 +35,14 @@ describe('finance validation', () => {
     expect(
       documentSchema.safeParse({
         title: 'Acta',
-        category: 'Actas',
+        category: 'Actas de asambleas y reuniones',
         version: '1',
+        documentDate: '2026-08-11',
         visibility: 'PUBLIC',
         fileUrl: 'https://example.com/acta.pdf',
+        fileSizeBytes: 8_000_000,
+        storageProvider: 'R2',
+        storageKey: 'public/documents/2026/08/acta.pdf',
         sha256: 'a'.repeat(64),
         approved: true,
       }).success,
@@ -48,13 +52,28 @@ describe('finance validation', () => {
     expect(
       documentSchema.safeParse({
         title: 'Acta',
-        category: 'Actas',
+        category: 'Actas de asambleas y reuniones',
         version: '1',
         visibility: 'PUBLIC',
         fileUrl: 'https://example.com/acta.pdf',
         sha256: 'abc',
       }).success,
     ).toBe(false);
+  });
+  it('rechaza categorías libres y archivos mayores de 20 MB', () => {
+    const base = {
+      title: 'Acta',
+      category: 'Actas de asambleas y reuniones',
+      visibility: 'PUBLIC',
+      fileUrl: 'https://example.com/acta.pdf',
+      sha256: 'a'.repeat(64),
+    };
+    expect(documentSchema.safeParse({ ...base, category: 'Carpeta improvisada' }).success).toBe(
+      false,
+    );
+    expect(documentSchema.safeParse({ ...base, fileSizeBytes: 20 * 1024 * 1024 + 1 }).success).toBe(
+      false,
+    );
   });
   it('accepts a charge and manual payment', () => {
     expect(

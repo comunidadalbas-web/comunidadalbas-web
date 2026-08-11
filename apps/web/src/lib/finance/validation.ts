@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  DOCUMENT_CATEGORIES,
+  DOCUMENT_MAX_BYTES,
+  DOCUMENT_STORAGE_PROVIDERS,
+} from '@/lib/documents';
 
 const optionalHttpsUrl = z
   .union([
@@ -38,14 +43,25 @@ export const DOCUMENT_VISIBILITIES = ['PUBLIC', 'PRIVATE', 'RESTRICTED'] as cons
 
 export const documentSchema = z.object({
   title: z.string().trim().min(2, 'El título es obligatorio').max(180),
-  category: z.string().trim().min(2, 'La categoría es obligatoria').max(100),
+  description: z.string().trim().max(500).default(''),
+  category: z.enum(DOCUMENT_CATEGORIES),
   version: z.string().trim().max(40).default('1.0'),
+  documentDate: z
+    .union([
+      z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'La fecha debe usar AAAA-MM-DD'),
+      z.literal(''),
+    ])
+    .default(''),
   visibility: z.enum(DOCUMENT_VISIBILITIES).default('RESTRICTED'),
   fileUrl: z
     .string()
     .url('URL inválida')
     .refine((value) => value.startsWith('https://'), 'La URL debe usar HTTPS'),
+  fileSizeBytes: z.number().int().positive().max(DOCUMENT_MAX_BYTES).nullable().default(null),
+  storageProvider: z.enum(DOCUMENT_STORAGE_PROVIDERS).default('EXTERNAL'),
+  storageKey: z.string().trim().max(1024).nullable().default(null),
   sha256: z.string().regex(/^[a-f0-9]{64}$/i, 'SHA-256 debe tener 64 caracteres hexadecimales'),
+  isPermanent: z.boolean().default(false),
   approved: z.boolean().default(false),
 });
 

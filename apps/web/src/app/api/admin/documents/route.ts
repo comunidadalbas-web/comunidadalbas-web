@@ -6,11 +6,18 @@ import { AUDIT_ACTIONS, writeAuditLog } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 const serialize = (
-  item: { approvedAt: Date | null; createdAt: Date } & Record<string, unknown>,
+  item: {
+    approvedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+    documentDate: Date | null;
+  } & Record<string, unknown>,
 ) => ({
   ...item,
   approvedAt: item.approvedAt?.toISOString() ?? null,
   createdAt: item.createdAt.toISOString(),
+  updatedAt: item.updatedAt.toISOString(),
+  documentDate: item.documentDate?.toISOString().slice(0, 10) ?? '',
 });
 
 export async function GET(request: NextRequest) {
@@ -43,11 +50,17 @@ export async function POST(request: NextRequest) {
   const item = await prisma.document.create({
     data: {
       title: data.title,
+      description: data.description || null,
       category: data.category,
       version: data.version,
+      documentDate: data.documentDate ? new Date(`${data.documentDate}T12:00:00.000Z`) : null,
       visibility: data.visibility,
       fileUrl: data.fileUrl,
+      fileSizeBytes: data.fileSizeBytes,
+      storageProvider: data.storageProvider,
+      storageKey: data.storageKey,
       sha256: data.sha256.toLowerCase(),
+      isPermanent: data.isPermanent,
       approvedAt: data.approved ? new Date() : null,
     },
   });

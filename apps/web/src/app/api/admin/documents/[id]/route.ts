@@ -9,11 +9,18 @@ interface Context {
   params: Promise<{ id: string }>;
 }
 const serialize = (
-  item: { approvedAt: Date | null; createdAt: Date } & Record<string, unknown>,
+  item: {
+    approvedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+    documentDate: Date | null;
+  } & Record<string, unknown>,
 ) => ({
   ...item,
   approvedAt: item.approvedAt?.toISOString() ?? null,
   createdAt: item.createdAt.toISOString(),
+  updatedAt: item.updatedAt.toISOString(),
+  documentDate: item.documentDate?.toISOString().slice(0, 10) ?? '',
 });
 
 export async function PATCH(request: NextRequest, context: Context) {
@@ -46,11 +53,19 @@ export async function PATCH(request: NextRequest, context: Context) {
     where: { id },
     data: {
       ...(data.title !== undefined && { title: data.title }),
+      ...(data.description !== undefined && { description: data.description || null }),
       ...(data.category !== undefined && { category: data.category }),
       ...(data.version !== undefined && { version: data.version }),
+      ...(data.documentDate !== undefined && {
+        documentDate: data.documentDate ? new Date(`${data.documentDate}T12:00:00.000Z`) : null,
+      }),
       ...(data.visibility !== undefined && { visibility: data.visibility }),
       ...(data.fileUrl !== undefined && { fileUrl: data.fileUrl }),
+      ...(data.fileSizeBytes !== undefined && { fileSizeBytes: data.fileSizeBytes }),
+      ...(data.storageProvider !== undefined && { storageProvider: data.storageProvider }),
+      ...(data.storageKey !== undefined && { storageKey: data.storageKey }),
       ...(data.sha256 !== undefined && { sha256: data.sha256.toLowerCase() }),
+      ...(data.isPermanent !== undefined && { isPermanent: data.isPermanent }),
       ...(data.approved !== undefined && { approvedAt: data.approved ? new Date() : null }),
     },
   });
@@ -74,6 +89,14 @@ export async function DELETE(request: NextRequest, context: Context) {
   const { id } = await context.params;
   const existing = await prisma.document.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: 'Documento no encontrado' }, { status: 404 });
+  if (existing.isPermanent)
+    return NextResponse.json(
+      {
+        error:
+          'Los documentos permanentes deben marcarse como históricos antes de eliminar su registro.',
+      },
+      { status: 409 },
+    );
   await writeAuditLog({
     userId: guard.session.userId,
     action: AUDIT_ACTIONS.DOCUMENT_DELETE,

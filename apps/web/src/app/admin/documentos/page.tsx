@@ -25,11 +25,17 @@ export default async function AdminDocumentosPage() {
         items={docs.map((doc) => ({
           id: doc.id,
           title: doc.title,
+          description: doc.description ?? '',
           category: doc.category,
           version: doc.version,
+          documentDate: doc.documentDate?.toISOString().slice(0, 10) ?? '',
           visibility: doc.visibility,
           fileUrl: doc.fileUrl,
+          fileSizeBytes: doc.fileSizeBytes,
+          storageProvider: doc.storageProvider,
+          storageKey: doc.storageKey,
           sha256: doc.sha256,
+          isPermanent: doc.isPermanent,
           approved: Boolean(doc.approvedAt),
           approvedAt: doc.approvedAt?.toISOString() ?? null,
         }))}
