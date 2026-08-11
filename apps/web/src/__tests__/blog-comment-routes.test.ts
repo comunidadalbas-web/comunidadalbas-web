@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const mocks = vi.hoisted(() => ({
   postFind: vi.fn(), commentFindMany: vi.fn(), commentFind: vi.fn(), commentCreate: vi.fn(), commentUpdate: vi.fn(),
-  rateCount: vi.fn(), rateCreateMany: vi.fn(), guard: vi.fn(), audit: vi.fn(),
+  rateCount: vi.fn(), rateCreate: vi.fn(), guard: vi.fn(), audit: vi.fn(),
 }));
 
 vi.mock('@comunidad-albas/db', () => ({ prisma: {
   blogPost: { findUnique: mocks.postFind },
   blogComment: { findMany: mocks.commentFindMany, findUnique: mocks.commentFind, create: mocks.commentCreate, update: mocks.commentUpdate },
-  rateLimitEntry: { count: mocks.rateCount, createMany: mocks.rateCreateMany },
+  rateLimitEntry: { count: mocks.rateCount, create: mocks.rateCreate },
 } }));
 vi.mock('@/lib/auth/guards', () => ({ guardAdminRequest: mocks.guard }));
 vi.mock('@/lib/audit', async () => {
@@ -35,7 +35,7 @@ describe('rutas de opiniones', () => {
     process.env.SESSION_SECRET = 'test-secret-for-blog-comment-hashes';
     mocks.postFind.mockResolvedValue({ id: 'p1', status: 'PUBLISHED', commentsEnabled: true });
     mocks.rateCount.mockResolvedValue(0);
-    mocks.rateCreateMany.mockResolvedValue({ count: 2 });
+    mocks.rateCreate.mockResolvedValue({});
     mocks.commentCreate.mockResolvedValue({ id: 'c-new', status: 'PENDING' });
     mocks.audit.mockResolvedValue(undefined);
     mocks.guard.mockResolvedValue({ session: { userId: 'admin1', email: 'secretaria@comunidadalbas.com.mx' } });

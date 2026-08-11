@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const mocks = vi.hoisted(() => ({
-  rateCount: vi.fn(), rateCreateMany: vi.fn(), userFind: vi.fn(), userUpdate: vi.fn(),
+  rateCount: vi.fn(), rateCreate: vi.fn(), userFind: vi.fn(), userUpdate: vi.fn(),
   tokenDeleteMany: vi.fn(), tokenCreate: vi.fn(), tokenDelete: vi.fn(), tokenFind: vi.fn(), tokenUpdateMany: vi.fn(),
   send: vi.fn(), audit: vi.fn(),
 }));
 
 vi.mock('@comunidad-albas/db', () => ({ prisma: {
-  rateLimitEntry: { count: mocks.rateCount, createMany: mocks.rateCreateMany },
+  rateLimitEntry: { count: mocks.rateCount, create: mocks.rateCreate },
   user: { findUnique: mocks.userFind, update: mocks.userUpdate },
   passwordResetToken: {
     deleteMany: mocks.tokenDeleteMany, create: mocks.tokenCreate, delete: mocks.tokenDelete,
@@ -35,7 +35,7 @@ describe('rutas de recuperación', () => {
     vi.clearAllMocks();
     process.env.SESSION_SECRET = 'test-secret-for-anti-abuse-hashing';
     mocks.rateCount.mockResolvedValue(0);
-    mocks.rateCreateMany.mockResolvedValue({ count: 2 });
+    mocks.rateCreate.mockResolvedValue({});
     mocks.tokenDeleteMany.mockResolvedValue({ count: 0 });
     mocks.tokenCreate.mockResolvedValue({ id: 'r1' });
     mocks.tokenDelete.mockResolvedValue({});

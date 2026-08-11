@@ -80,7 +80,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   if (counts.some((count) => count >= MAX_SUBMISSIONS)) {
     return NextResponse.json({ error: 'Demasiados envíos. Intenta nuevamente en unos minutos.' }, { status: 429 });
   }
-  await prisma.rateLimitEntry.createMany({ data: keys.map((key) => ({ key })) });
+  await Promise.all(keys.map((key) => prisma.rateLimitEntry.create({ data: { key } })));
 
   await prisma.blogComment.create({
     data: {
