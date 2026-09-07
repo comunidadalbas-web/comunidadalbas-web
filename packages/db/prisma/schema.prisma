@@ -623,21 +623,24 @@ model MaintenanceTicket {
 }
 
 model AssetInventory {
-  id            String       @id @default(cuid())
-  propertyId    String
-  property      Property     @relation(fields: [propertyId], references: [id])
-  name          String
-  category      String?
-  description   String?
-  quantity      Int          @default(1)
-  condition     InventoryCondition @default(GOOD)
-  location      String?
-  notes         String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  @@index([propertyId, category])
-}
+    id            String       @id @default(cuid())
+    propertyId    String
+    property      Property     @relation(fields: [propertyId], references: [id])
+    name          String
+    brand         String?
+    model         String?
+    serialNumber  String?
+    category      String?
+    description   String?
+    quantity      Int          @default(1)
+    condition     InventoryCondition @default(GOOD)
+    location      String?
+    notes         String?
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+  
+    @@index([propertyId, category])
+  }
 
 model PropertyDocument {
   id            String     @id @default(cuid())
