@@ -1,4 +1,4 @@
-const DEFAULT_SITE_NAME = 'Comunidad Albas';
+const DEFAULT_SITE_NAME = 'PATRIMONIO';
 const DEFAULT_SITE_URL = 'https://comunidadalbas.com.mx';
 
 export interface TemplateContext {

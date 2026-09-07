@@ -32,7 +32,7 @@ export default async function ComunicadosPage() {
           No hay comunicados publicados en este momento. Vuelve pronto.
         </div>
       ) : (
-        comunicados.map((c) => (
+        comunicados.map((c: any) => (
           <article key={c.id} className="card" style={{ marginBottom: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem', flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '1.15rem' }}>{c.title}</h2>

@@ -1,10 +1,17 @@
 export const DOCUMENT_CATEGORIES = [
-  'Estatutos y reglamentos',
-  'Avisos de privacidad',
-  'Informes financieros trimestrales',
-  'Actas de asambleas y reuniones',
-  'Convocatorias oficiales',
-  'Manuales y lineamientos',
+  'Propiedad',
+  'Escritura',
+  'FOVISSSTE',
+  'Condominio',
+  'Reglamentos',
+  'Arrendatarios',
+  'Contratos',
+  'Inventarios',
+  'Administración',
+  'Pagos',
+  'Fiscal',
+  'Mantenimiento',
+  'Fotografías',
 ] as const;
 
 export type DocumentCategory = (typeof DOCUMENT_CATEGORIES)[number];
@@ -13,36 +20,70 @@ export const DOCUMENT_CATEGORY_DETAILS: Record<
   DocumentCategory,
   { description: string; permanent: boolean; requiresHumanUpload: boolean }
 > = {
-  'Estatutos y reglamentos': {
-    description: 'Marco normativo y reglas de convivencia aplicables a la comunidad.',
+  'Propiedad': {
+    description: 'Documentos generales de la propiedad.',
     permanent: true,
     requiresHumanUpload: false,
   },
-  'Avisos de privacidad': {
-    description: 'Avisos vigentes sobre el tratamiento y protección de datos personales.',
+  'Escritura': {
+    description: 'Escrituras y títulos de propiedad.',
+    permanent: true,
+    requiresHumanUpload: true,
+  },
+  'FOVISSSTE': {
+    description: 'Documentos relacionados con FOVISSSTE.',
+    permanent: true,
+    requiresHumanUpload: true,
+  },
+  'Condominio': {
+    description: 'Documentos de condominio y reglamento interno.',
     permanent: true,
     requiresHumanUpload: false,
   },
-  'Informes financieros trimestrales': {
-    description: 'Informes aprobados de ingresos, egresos y aplicación de recursos.',
-    permanent: false,
-    requiresHumanUpload: true,
-  },
-  'Actas de asambleas y reuniones': {
-    description:
-      'Versiones públicas escaneadas después de revisar y ocultar datos personales no necesarios.',
-    permanent: false,
-    requiresHumanUpload: true,
-  },
-  'Convocatorias oficiales': {
-    description: 'Convocatorias emitidas por los órganos facultados de la comunidad.',
-    permanent: false,
-    requiresHumanUpload: true,
-  },
-  'Manuales y lineamientos': {
-    description: 'Materiales de orientación aportados para propietarios y residentes.',
+  'Reglamentos': {
+    description: 'Reglamentos y normativas aplicables.',
     permanent: true,
     requiresHumanUpload: false,
+  },
+  'Arrendatarios': {
+    description: 'Documentos de arrendatarios.',
+    permanent: false,
+    requiresHumanUpload: true,
+  },
+  'Contratos': {
+    description: 'Contratos de arrendamiento.',
+    permanent: true,
+    requiresHumanUpload: true,
+  },
+  'Inventarios': {
+    description: 'Inventarios de mobiliario y equipamiento.',
+    permanent: false,
+    requiresHumanUpload: true,
+  },
+  'Administración': {
+    description: 'Documentos administrativos y de gestión.',
+    permanent: false,
+    requiresHumanUpload: true,
+  },
+  'Pagos': {
+    description: 'Comprobantes de pago y recibos.',
+    permanent: false,
+    requiresHumanUpload: true,
+  },
+  'Fiscal': {
+    description: 'Documentos fiscales y tributarios.',
+    permanent: true,
+    requiresHumanUpload: true,
+  },
+  'Mantenimiento': {
+    description: 'Registros de mantenimiento y reparaciones.',
+    permanent: false,
+    requiresHumanUpload: true,
+  },
+  'Fotografías': {
+    description: 'Fotografías de la propiedad.',
+    permanent: false,
+    requiresHumanUpload: true,
   },
 };
 

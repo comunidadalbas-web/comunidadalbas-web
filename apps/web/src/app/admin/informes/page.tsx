@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import InformesClient from './informes-client';
 
 export const metadata: Metadata = {

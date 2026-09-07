@@ -1,22 +1,19 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import {
   INSTITUTIONAL_ACCOUNTS,
-  INSTITUTIONAL_ALIASES,
   MAX_ADMIN_USERS,
 } from '@/lib/users/institutional-accounts';
 
-const ROLES = ['admin', 'director', 'tesorero', 'secretario', 'vocal', 'resident'] as const;
+const ROLES = ['owner', 'gestor', 'contador', 'arrendatario'] as const;
 type Role = (typeof ROLES)[number];
 
 const ROLE_LABEL: Record<Role, string> = {
-  admin: 'Administrador',
-  director: 'Director',
-  tesorero: 'Tesorero',
-  secretario: 'Secretario',
-  vocal: 'Vocal',
-  resident: 'Residente',
+  owner: 'Propietario',
+  gestor: 'Gestor',
+  contador: 'Contador',
+  arrendatario: 'Arrendatario',
 };
 
 interface Usuario {
@@ -251,14 +248,6 @@ export default function UsersClient({ items, currentUserId, csrfToken }: Props) 
             </li>
           ))}
         </ul>
-        <small>
-          Alias funcionales (no crean usuarios):{' '}
-          {INSTITUTIONAL_ALIASES.map((alias) => (
-            <span key={alias.email} style={{ display: 'block' }}>
-              {alias.email} → {alias.targetEmail} ({alias.function})
-            </span>
-          ))}
-        </small>
       </div>
 
       <button

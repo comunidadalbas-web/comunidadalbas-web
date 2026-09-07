@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { prisma } from '@comunidad-albas/db';
 import { getSessionFromRequest, CSRF_COOKIE } from '@/lib/auth/session';
@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function PaymentsPage() {
   const session = await getSessionFromRequest();
   if (!session) redirect('/login');
-  if (!session.roles.includes(ROLES.ADMIN) && !session.roles.includes(ROLES.TESORERO))
+  if (!session.roles.includes(ROLES.OWNER) && !session.roles.includes(ROLES.CONTADOR))
     redirect('/admin');
   const [units, concepts, charges, payments, orders] = await Promise.all([
     prisma.unit.findMany({

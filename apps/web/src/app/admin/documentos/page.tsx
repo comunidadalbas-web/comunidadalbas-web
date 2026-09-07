@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { prisma } from '@comunidad-albas/db';
 import { getSessionFromRequest, CSRF_COOKIE } from '@/lib/auth/session';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminDocumentosPage() {
   const session = await getSessionFromRequest();
   if (!session) redirect('/login');
-  if (![ROLES.ADMIN, ROLES.DIRECTOR, ROLES.SECRETARIO].some((role) => session.roles.includes(role)))
+  if (![ROLES.OWNER, ROLES.GESTOR, ROLES.GESTOR].some((role) => session.roles.includes(role)))
     redirect('/admin');
   const docs = await prisma.document.findMany({ orderBy: [{ category: 'asc' }, { title: 'asc' }] });
   const csrfCookie = (await cookies()).get(CSRF_COOKIE)?.value ?? '';

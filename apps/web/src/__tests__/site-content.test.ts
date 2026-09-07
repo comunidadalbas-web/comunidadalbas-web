@@ -7,9 +7,9 @@ function source(path: string) {
 }
 
 describe('contenido y navegación', () => {
-  it('Home anuncia tarjeta y SPEI', () => {
+  it('Home anuncia PATRIMONIO', () => {
     const text = source('src/app/page.tsx');
-    expect(text).toContain('con tarjeta o mediante transferencia SPEI');
+    expect(text).toContain('PATRIMONIO');
   });
 
   it('login permite mostrar u ocultar y enlaza recuperación', () => {
@@ -19,15 +19,14 @@ describe('contenido y navegación', () => {
     expect(text).toContain('/recuperar-contrasena');
   });
 
-  it('footer incluye Secretaría y WhatsApp HTTPS', () => {
+  it('footer incluye email institucional', () => {
     const text = source('src/app/layout.tsx');
-    expect(text).toContain('secretaria@comunidadalbas.com.mx');
-    expect(text).toContain('https://wa.me/525663011493');
-    expect(text).toContain('No es un canal de emergencias');
+    expect(text).toContain('contacto@comunidadalbas.com.mx');
   });
 
-  it('navegación superior incluye Campañas', () => {
-    expect(source('src/components/site-header.tsx')).toContain('href="/campanas"');
+  it('navegación superior incluye PATRIMONIO', () => {
+    const text = source('src/components/site-header.tsx');
+    expect(text).toContain('PATRIMONIO');
   });
 
   it('suscripción verificada queda visible con enlace externo seguro', () => {
@@ -44,14 +43,12 @@ describe('contenido y navegación', () => {
     expect(text).toContain('Participación y opiniones en el blog');
   });
 
-  it('documentos organiza transparencia y mantiene el aviso de privacidad fijo', () => {
+  it('documentos organiza transparencia y categorías patrimonio', () => {
     const page = source('src/app/documentos/page.tsx');
     const categories = source('src/lib/documents.ts');
     expect(page).toContain('Documentos y transparencia');
-    expect(page).toContain('Aviso de privacidad integral del sitio');
-    expect(page).toContain('Ver integridad');
-    expect(categories).toContain('Informes financieros trimestrales');
-    expect(categories).toContain('Actas de asambleas y reuniones');
-    expect(categories).toContain('Convocatorias oficiales');
+    expect(categories).toContain('Contratos');
+    expect(categories).toContain('Inventarios');
+    expect(categories).toContain('Fiscal');
   });
 });

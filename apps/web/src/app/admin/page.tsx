@@ -1,42 +1,61 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { prisma } from '@comunidad-albas/db';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Administración',
+  title: 'Dashboard',
   robots: { index: false, follow: false },
 };
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
-  const [contactNew, contactOpen, units, buildings, feeConcepts, paymentsPending, expensesPending] = await Promise.all([
-    prisma.contactRequest.count({ where: { status: 'NEW' } }),
-    prisma.contactRequest.count({ where: { status: { in: ['NEW', 'IN_REVIEW'] } } }),
-    prisma.unit.count(),
-    prisma.building.count(),
-    prisma.feeConcept.count(),
+  const [
+    propertyCount,
+    activeLeases,
+    pendingCharges,
+    pendingPayments,
+    openTickets,
+    upcomingEvents,
+    recentExpenses,
+    properties,
+  ] = await Promise.all([
+    prisma.property.count({ where: { status: 'ACTIVE' } }),
+    prisma.lease.count({ where: { status: 'ACTIVE' } }),
+    prisma.leaseCharge.count({ where: { status: 'PENDING' } }),
     prisma.payment.count({ where: { status: 'REPORTED' } }),
-    prisma.expense.count({ where: { status: 'REQUESTED' } }),
+    prisma.maintenanceTicket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
+    prisma.calendarEvent.count({
+      where: {
+        startsAt: { gte: new Date() },
+        status: 'SCHEDULED',
+      },
+    }),
+    prisma.propertyExpense.count({ where: { status: 'REQUESTED' } }),
+    prisma.property.findMany({
+      where: { status: 'ACTIVE' },
+      include: { units: true, leases: { where: { status: 'ACTIVE' } } },
+      take: 10,
+    }),
   ]);
 
-  const stats = [
-    { label: 'Solicitudes nuevas', value: contactNew, href: '/admin/solicitudes' },
-    { label: 'En atención', value: contactOpen, href: '/admin/solicitudes' },
-    { label: 'Departamentos', value: units, href: '/admin/unidades' },
-    { label: 'Edificios', value: buildings, href: '/admin/unidades' },
-    { label: 'Conceptos de cuota', value: feeConcepts, href: '/admin/conceptos' },
-    { label: 'Pagos por confirmar', value: paymentsPending, href: '/admin/pagos' },
-    { label: 'Egresos por autorizar', value: expensesPending, href: '/admin/egresos' },
+  const financialStats = [
+    { label: 'Propiedades', value: propertyCount, href: '/admin/propiedades' },
+    { label: 'Contratos activos', value: activeLeases, href: '/admin/contratos' },
+    { label: 'Cargos pendientes', value: pendingCharges, href: '/admin/cobranza' },
+    { label: 'Pagos por confirmar', value: pendingPayments, href: '/admin/cobranza' },
+    { label: 'Incidencias abiertas', value: openTickets, href: '/admin/mantenimiento' },
+    { label: 'Próximos eventos', value: upcomingEvents, href: '/admin/calendario' },
+    { label: 'Gastos por autorizar', value: recentExpenses, href: '/admin/gastos' },
   ];
 
   return (
     <>
-      <h1 className="page-title">Panel de administración</h1>
-      <p className="page-subtitle">Resumen operativo de Privada Albas</p>
+      <h1 className="page-title">PATRIMONIO</h1>
+      <p className="page-subtitle">Dashboard de administración patrimonial</p>
 
       <div className="stat-grid">
-        {stats.map((s) => (
+        {financialStats.map((s) => (
           <Link key={s.label} href={s.href} className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="stat-value">{s.value}</div>
             <div className="stat-label">{s.label}</div>
@@ -45,16 +64,26 @@ export default async function AdminDashboard() {
       </div>
 
       <section className="info-section">
-        <h2>Módulos del portal</h2>
-        <ul style={{ marginLeft: '1.5rem', marginTop: '0.75rem' }}>
-          <li>Edificios y departamentos (catálogo)</li>
-          <li>Cuotas y cargos</li>
-          <li>Pagos en línea y conciliación</li>
-          <li>Egresos y autorizaciones</li>
-          <li>Documentos y publicaciones</li>
-          <li>Usuarios y roles</li>
-          <li>Bitácora de auditoría</li>
-        </ul>
+        <h2>Propiedades</h2>
+        {properties.length === 0 ? (
+          <p>No hay propiedades registradas.</p>
+        ) : (
+          <div className="card-grid">
+            {properties.map((property: any) => (
+              <Link
+                key={property.id}
+                href={`/admin/propiedades/${property.id}`}
+                className="card"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <h3>{property.code} · {property.name}</h3>
+                <p>{property.type} · {property.use}</p>
+                <p>{property.units.length} unidades · {property.leases.length} contratos activos</p>
+                {property.areaM2 && <p>{property.areaM2.toString()} m²</p>}
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </>
   );

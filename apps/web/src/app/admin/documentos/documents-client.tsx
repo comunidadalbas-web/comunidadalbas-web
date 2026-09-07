@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { DOCUMENT_VISIBILITIES } from '@/lib/finance/validation';

@@ -13,7 +13,7 @@ export default async function CalendarioPage() {
     orderBy: { startsAt: 'asc' },
   });
 
-  const upcoming = eventos.filter((e) => e.startsAt >= new Date());
+  const upcoming = eventos.filter((e: any) => e.startsAt >= new Date());
 
   return (
     <>
@@ -36,7 +36,7 @@ export default async function CalendarioPage() {
               </tr>
             </thead>
             <tbody>
-              {upcoming.map((e) => (
+              {upcoming.map((e: any) => (
                 <tr key={e.id}>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     {new Date(e.startsAt).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}

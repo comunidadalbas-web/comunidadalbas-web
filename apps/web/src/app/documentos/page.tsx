@@ -44,8 +44,8 @@ export default async function DocumentosPage() {
 
       {DOCUMENT_CATEGORIES.map((category) => {
         const details = DOCUMENT_CATEGORY_DETAILS[category];
-        const documents = publicDocs.filter((document) => document.category === category);
-        const hasFixedPrivacy = category === 'Avisos de privacidad';
+        const documents = publicDocs.filter((document: any) => document.category === category);
+        const hasFixedPrivacy = category === 'Reglamentos';
         return (
           <section
             key={category}
@@ -77,7 +77,7 @@ export default async function DocumentosPage() {
                   </div>
                 </article>
               )}
-              {documents.map((document) => (
+              {documents.map((document: any) => (
                 <article className="document-card" key={document.id}>
                   <div className="document-card-icon" aria-hidden="true">
                     PDF

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { prisma } from '@comunidad-albas/db';
 import { cookies } from 'next/headers';
 import { CSRF_COOKIE } from '@/lib/auth/session';
@@ -18,9 +18,9 @@ export default async function ConceptosPage() {
   const session = await getSessionFromRequest();
   if (!session) redirect('/login');
   const canManage =
-    session.roles.includes(ROLES.ADMIN) ||
-    session.roles.includes(ROLES.DIRECTOR) ||
-    session.roles.includes(ROLES.TESORERO);
+    session.roles.includes(ROLES.OWNER) ||
+    session.roles.includes(ROLES.GESTOR) ||
+    session.roles.includes(ROLES.CONTADOR);
   if (!canManage) redirect('/admin');
 
   const concepts = await prisma.feeConcept.findMany({ orderBy: { name: 'asc' } });

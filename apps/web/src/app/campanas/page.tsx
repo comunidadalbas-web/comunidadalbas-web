@@ -24,7 +24,7 @@ export default async function CampanasPage() {
           No hay campañas activas en este momento.
         </div>
       ) : (
-        campanas.map((c) => {
+        campanas.map((c: any) => {
           const goal = c.goalAmount ? Number(c.goalAmount) : 0;
           const collected = Number(c.collectedAmount);
           const pct = goal > 0 ? Math.min(100, Math.round((collected / goal) * 100)) : 0;

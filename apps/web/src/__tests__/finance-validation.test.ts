@@ -35,7 +35,7 @@ describe('finance validation', () => {
     expect(
       documentSchema.safeParse({
         title: 'Acta',
-        category: 'Actas de asambleas y reuniones',
+        category: 'Propiedad',
         version: '1',
         documentDate: '2026-08-11',
         visibility: 'PUBLIC',

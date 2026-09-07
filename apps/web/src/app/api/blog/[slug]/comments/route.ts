@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const counts = await Promise.all(
     keys.map((key) => prisma.rateLimitEntry.count({ where: { key, createdAt: { gte: since } } })),
   );
-  if (counts.some((count) => count >= MAX_SUBMISSIONS)) {
+  if (counts.some((count: number) => count >= MAX_SUBMISSIONS)) {
     return NextResponse.json({ error: 'Demasiados envíos. Intenta nuevamente en unos minutos.' }, { status: 429 });
   }
   await Promise.all(keys.map((key) => prisma.rateLimitEntry.create({ data: { key } })));

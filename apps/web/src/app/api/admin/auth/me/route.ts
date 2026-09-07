@@ -15,7 +15,7 @@ export async function GET() {
       email: session.email,
       displayName: session.displayName,
       roles: session.roles,
-      isAdmin: session.roles.includes(ROLES.ADMIN),
+      isAdmin: session.roles.includes(ROLES.OWNER),
     },
   });
 }

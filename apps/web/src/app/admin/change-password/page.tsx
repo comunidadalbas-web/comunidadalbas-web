@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { CSRF_COOKIE } from '@/lib/auth/session';
 import ChangePasswordClient from './change-password-client';

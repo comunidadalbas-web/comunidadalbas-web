@@ -3,12 +3,10 @@ import { getSessionFromRequest, verifyCsrfToken, CSRF_COOKIE } from './session';
 import type { SessionPayload } from './session';
 
 export const ROLES = {
-  ADMIN: 'admin',
-  DIRECTOR: 'director',
-  TESORERO: 'tesorero',
-  SECRETARIO: 'secretario',
-  VOCAL: 'vocal',
-  RESIDENT: 'resident',
+  OWNER: 'owner',
+  GESTOR: 'gestor',
+  CONTADOR: 'contador',
+  ARRENDATARIO: 'arrendatario',
 } as const;
 
 export async function requireSession(request: NextRequest): Promise<SessionPayload | null> {
@@ -17,7 +15,7 @@ export async function requireSession(request: NextRequest): Promise<SessionPaylo
 
 export function hasRole(session: SessionPayload | null, ...allowed: string[]): boolean {
   if (!session) return false;
-  if (session.roles.includes(ROLES.ADMIN)) return true;
+  if (session.roles.includes(ROLES.OWNER)) return true;
   return allowed.some((role) => session.roles.includes(role));
 }
 

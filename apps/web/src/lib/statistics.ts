@@ -61,23 +61,23 @@ export async function getSummaryStats(): Promise<SummaryStats> {
   const charges = await prisma.charge.findMany({
     select: { amount: true, payments: { select: { amount: true } } },
   });
-  const totalCharges = charges.reduce((acc, c) => acc + Number(c.amount), 0);
+  const totalCharges = charges.reduce((acc: number, c: any) => acc + Number(c.amount), 0);
   const appliedTotal = charges.reduce(
-    (acc, c) => acc + c.payments.reduce((a, x) => a + Number(x.amount), 0),
+    (acc: number, c: any) => acc + c.payments.reduce((a: number, x: any) => a + Number(x.amount), 0),
     0,
   );
 
   const reconciledMovements = new Set(
-    providerPayments.map((payment) => payment.providerMovementId),
+    providerPayments.map((payment: any) => payment.providerMovementId),
   );
   const unmatchedPaidOrders = orders.filter(
-    (order) =>
+    (order: any) =>
       MP_PAID_STATUSES.includes(order.status) &&
       !reconciledMovements.has(order.paymentId || order.orderId),
   );
   const confirmedIncome =
     Number(paymentAgg._sum?.amount ?? 0) +
-    unmatchedPaidOrders.reduce((sum, order) => sum + Number(order.amount), 0);
+    unmatchedPaidOrders.reduce((sum: number, order: any) => sum + Number(order.amount), 0);
   const confirmedPayments = paymentAgg._count + unmatchedPaidOrders.length;
   const expensesTotal = Number(expenseAgg._sum?.amount ?? 0);
 
@@ -158,7 +158,7 @@ export async function getMonthlySeries(months = 6): Promise<MonthlySeriesPoint[]
     if (i !== undefined) points[i].income += Number(p.amount);
   }
   const reconciledMovements = new Set(
-    payments.map((payment) => payment.providerMovementId).filter(Boolean),
+    payments.map((payment: any) => payment.providerMovementId).filter(Boolean),
   );
   for (const o of mpOrders) {
     if (reconciledMovements.has(o.paymentId || o.orderId)) continue;
@@ -194,8 +194,8 @@ export async function getDelinquency(): Promise<DelinquencyRow[]> {
   });
 
   return charges
-    .map((c) => {
-      const applied = c.payments.reduce((a, x) => a + Number(x.amount), 0);
+    .map((c: any) => {
+      const applied = c.payments.reduce((a: number, x: any) => a + Number(x.amount), 0);
       const amount = Number(c.amount);
       return {
         unitCode: c.unit.code,
@@ -207,7 +207,7 @@ export async function getDelinquency(): Promise<DelinquencyRow[]> {
         remaining: Math.max(0, amount - applied),
       };
     })
-    .filter((r) => r.remaining > 0);
+    .filter((r: any) => r.remaining > 0);
 }
 
 export function formatMxn(amount: number): string {

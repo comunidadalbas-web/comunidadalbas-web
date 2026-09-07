@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { prisma } from '@comunidad-albas/db';
 import { getSessionFromRequest } from '@/lib/auth/session';
 import { ROLES } from '@/lib/auth/guards';
@@ -33,7 +33,7 @@ const ACTION_LABEL: Record<string, string> = {
 export default async function AuditoriaPage() {
   const session = await getSessionFromRequest();
   if (!session) redirect('/login');
-  if (!session.roles.includes(ROLES.ADMIN)) redirect('/admin');
+  if (!session.roles.includes(ROLES.OWNER)) redirect('/admin');
 
   const logs = await prisma.auditLog.findMany({
     orderBy: { createdAt: 'desc' },

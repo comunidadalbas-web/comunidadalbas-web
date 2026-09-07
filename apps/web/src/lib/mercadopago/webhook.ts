@@ -99,8 +99,8 @@ async function reconcileConfirmedOrder(orderId: string): Promise<string> {
           orderBy: [{ dueDate: 'asc' }, { period: 'asc' }],
         })
       : [];
-  const compatible = candidateCharges.filter((charge) => {
-    const applied = charge.payments.reduce((sum, item) => sum + Number(item.amount), 0);
+  const compatible = candidateCharges.filter((charge: any) => {
+    const applied = charge.payments.reduce((sum: number, item: any) => sum + Number(item.amount), 0);
     return Number(order.amount) <= Number(charge.amount) - applied + 0.001;
   });
   if (compatible.length !== 1) {

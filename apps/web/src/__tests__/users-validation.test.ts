@@ -8,10 +8,10 @@ import {
 
 describe('users/validation - create', () => {
   const valid = {
-    email: 'presidencia@comunidadalbas.com.mx',
-    displayName: 'Presidencia',
+    email: 'gestion@comunidadalbas.com.mx',
+    displayName: 'Gestor Patrimonial',
     password: 'clave-muy-segura-123',
-    roles: ['resident'],
+    roles: ['gestor'],
   };
 
   it('accepts valid data', () => {
@@ -25,11 +25,6 @@ describe('users/validation - create', () => {
 
   it('rejects a valid but unauthorized institutional-domain email', () => {
     const res = createUserSchema.safeParse({ ...valid, email: 'persona@comunidadalbas.com.mx' });
-    expect(res.success).toBe(false);
-  });
-
-  it('rejects functional aliases as panel users', () => {
-    const res = createUserSchema.safeParse({ ...valid, email: 'pagos@comunidadalbas.com.mx' });
     expect(res.success).toBe(false);
   });
 
@@ -53,31 +48,24 @@ describe('users/validation - create', () => {
     expect(res.success).toBe(false);
   });
 
-  it('exposes the six roles', () => {
+  it('exposes the four roles', () => {
     expect(USER_ROLES).toEqual([
-      'admin',
-      'director',
-      'tesorero',
-      'secretario',
-      'vocal',
-      'resident',
+      'owner',
+      'gestor',
+      'contador',
+      'arrendatario',
     ]);
   });
 
-  it('defines exactly five panel accounts and three non-user aliases', () => {
+  it('defines exactly five panel accounts and no non-user aliases', () => {
     expect(INSTITUTIONAL_ACCOUNTS).toHaveLength(MAX_ADMIN_USERS);
-    expect(INSTITUTIONAL_ALIASES).toHaveLength(3);
-    expect(INSTITUTIONAL_ALIASES.map((alias) => alias.email)).toEqual([
-      'pagos@comunidadalbas.com.mx',
-      'privacidad@comunidadalbas.com.mx',
-      'administracion@comunidadalbas.com.mx',
-    ]);
+    expect(INSTITUTIONAL_ALIASES).toHaveLength(0);
   });
 });
 
 describe('users/validation - update', () => {
   it('accepts partial update with roles', () => {
-    expect(updateUserSchema.safeParse({ roles: ['admin'] }).success).toBe(true);
+    expect(updateUserSchema.safeParse({ roles: ['gestor'] }).success).toBe(true);
   });
 
   it('accepts deactivation', () => {

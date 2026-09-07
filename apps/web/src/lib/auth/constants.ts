@@ -1,2 +1,2 @@
-export const SESSION_COOKIE = 'albas_session';
-export const CSRF_COOKIE = 'albas_csrf';
+export const SESSION_COOKIE = 'patrimonio_session';
+export const CSRF_COOKIE = 'patrimonio_csrf';

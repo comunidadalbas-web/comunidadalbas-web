@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { prisma } from '@comunidad-albas/db';
 import { cookies } from 'next/headers';
 import { getSessionFromRequest } from '@/lib/auth/session';
@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export default async function UsuariosPage() {
   const session = await getSessionFromRequest();
   if (!session) redirect('/login');
-  if (!session.roles.includes(ROLES.ADMIN)) redirect('/admin');
+  if (!session.roles.includes(ROLES.OWNER)) redirect('/admin');
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: 'asc' },

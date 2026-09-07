@@ -18,7 +18,11 @@ export type {
   Document, User, RoleAssignment, AuditLog,
   ContactRequest, MercadoPagoOrder, MercadoPagoWebhookEvent,
   Announcement, Campaign, CalendarEvent, BlogPost, BlogComment, PasswordResetToken,
+  Property, Tenant, Lease, LeaseOccupant, LeaseCharge,
+  SecurityDeposit, AdministrationFee, PropertyExpense,
+  MaintenanceTicket, AssetInventory, PropertyDocument, TaxRecord,
   RecordStatus, PaymentStatus, ExpenseStatus,
   AnnouncementStatus, CampaignStatus, CalendarEventStatus, BlogPostStatus, BlogCommentStatus,
+  LeaseStatus, TicketStatus, TicketPriority, InventoryCondition,
   Prisma,
 } from '../prisma/client/client';

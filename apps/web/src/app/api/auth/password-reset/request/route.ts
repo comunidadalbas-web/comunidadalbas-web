@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const counts = await Promise.all(
       keys.map((key) => prisma.rateLimitEntry.count({ where: { key, createdAt: { gte: since } } })),
     );
-    if (counts.some((count) => count >= MAX_REQUESTS)) return genericResponse();
+    if (counts.some((count: number) => count >= MAX_REQUESTS)) return genericResponse();
     await Promise.all(keys.map((key) => prisma.rateLimitEntry.create({ data: { key } })));
 
     const user = await prisma.user.findUnique({ where: { email } });

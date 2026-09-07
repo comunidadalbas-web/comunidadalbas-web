@@ -67,7 +67,7 @@ describe('auth/session', () => {
   });
 
   it('constantes de cookie definidas', () => {
-    expect(SESSION_COOKIE).toBe('albas_session');
-    expect(CSRF_COOKIE).toBe('albas_csrf');
+    expect(SESSION_COOKIE).toBe('patrimonio_session');
+    expect(CSRF_COOKIE).toBe('patrimonio_csrf');
   });
 });

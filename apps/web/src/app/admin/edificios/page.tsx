@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { prisma } from '@comunidad-albas/db';
 import { cookies } from 'next/headers';
 import { CSRF_COOKIE } from '@/lib/auth/session';
@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export default async function EdificiosPage() {
   const session = await getSessionFromRequest();
   if (!session) redirect('/login');
-  if (!session.roles.includes(ROLES.ADMIN) && !session.roles.includes(ROLES.DIRECTOR)) {
+  if (!session.roles.includes(ROLES.OWNER) && !session.roles.includes(ROLES.GESTOR)) {
     redirect('/admin');
   }
 

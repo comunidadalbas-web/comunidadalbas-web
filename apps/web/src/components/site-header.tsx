@@ -10,7 +10,7 @@ export default function SiteHeader() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <Link href="/" className="site-logo" onClick={close}>Comunidad Albas</Link>
+        <Link href="/" className="site-logo" onClick={close}>PATRIMONIO</Link>
         <button
           type="button"
           className="nav-toggle"
@@ -23,14 +23,8 @@ export default function SiteHeader() {
         </button>
         <nav id="main-navigation" className={`main-nav${open ? ' open' : ''}`}>
           <Link href="/" onClick={close}>Inicio</Link>
-          <Link href="/nosotros" onClick={close}>Nosotros</Link>
-          <Link href="/comunicados" onClick={close}>Comunicados</Link>
-          <Link href="/blog" onClick={close}>Blog</Link>
-          <Link href="/campanas" onClick={close}>Campañas</Link>
-          <Link href="/calendario" onClick={close}>Calendario</Link>
-          <Link href="/documentos" onClick={close}>Documentos</Link>
-          <Link href="/pagos" onClick={close}>Pagos</Link>
           <Link href="/contacto" onClick={close}>Contacto</Link>
+          <Link href="/login" onClick={close}>Acceso</Link>
         </nav>
       </div>
     </header>

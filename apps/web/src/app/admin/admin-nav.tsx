@@ -1,25 +1,24 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const NAV_ITEMS = [
-  { href: '/admin', label: 'Panel', roles: [] },
-  { href: '/admin/solicitudes', label: 'Solicitudes', roles: ['admin', 'secretario', 'vocal'] },
-  { href: '/admin/comunicados', label: 'Comunicados', roles: ['admin', 'director', 'secretario'] },
-  { href: '/admin/blog', label: 'Blog', roles: ['admin', 'director', 'secretario'] },
-  { href: '/admin/campanas', label: 'Campañas', roles: ['admin', 'director', 'secretario'] },
-  { href: '/admin/calendario', label: 'Calendario', roles: ['admin', 'director', 'secretario'] },
-  { href: '/admin/edificios', label: 'Edificios', roles: ['admin', 'director'] },
-  { href: '/admin/unidades', label: 'Unidades', roles: ['admin', 'director'] },
-  { href: '/admin/conceptos', label: 'Conceptos', roles: ['admin', 'director', 'tesorero'] },
-  { href: '/admin/documentos', label: 'Documentos', roles: ['admin', 'director', 'secretario'] },
-  { href: '/admin/pagos', label: 'Pagos', roles: ['admin', 'tesorero'] },
-  { href: '/admin/egresos', label: 'Egresos', roles: ['admin', 'tesorero'] },
-  { href: '/admin/informes', label: 'Informes', roles: ['admin', 'director', 'tesorero'] },
-  { href: '/admin/usuarios', label: 'Usuarios', roles: ['admin'] },
-  { href: '/admin/auditoria', label: 'Auditoría', roles: ['admin'] },
+  { href: '/admin', label: 'Dashboard', roles: [] },
+  { href: '/admin/propiedades', label: 'Propiedades', roles: ['owner', 'gestor'] },
+  { href: '/admin/arrendatarios', label: 'Arrendatarios', roles: ['owner', 'gestor'] },
+  { href: '/admin/contratos', label: 'Contratos', roles: ['owner', 'gestor'] },
+  { href: '/admin/cobranza', label: 'Cobranza', roles: ['owner', 'gestor', 'contador'] },
+  { href: '/admin/gastos', label: 'Gastos', roles: ['owner', 'gestor', 'contador'] },
+  { href: '/admin/calendario', label: 'Calendario', roles: ['owner', 'gestor'] },
+  { href: '/admin/mantenimiento', label: 'Mantenimiento', roles: ['owner', 'gestor'] },
+  { href: '/admin/inventario', label: 'Inventario', roles: ['owner', 'gestor'] },
+  { href: '/admin/documentos', label: 'Documentos', roles: ['owner', 'gestor'] },
+  { href: '/admin/comunicaciones', label: 'Comunicaciones', roles: ['owner', 'gestor'] },
+  { href: '/admin/reportes', label: 'Reportes', roles: ['owner', 'gestor', 'contador'] },
+  { href: '/admin/usuarios', label: 'Usuarios', roles: ['owner'] },
+  { href: '/admin/auditoria', label: 'Auditoría', roles: ['owner'] },
 ];
 
 export default function AdminNav({
@@ -47,7 +46,7 @@ export default function AdminNav({
   return (
     <nav className="admin-nav">
       <div className="admin-nav-brand">
-        <strong>Comunidad Albas</strong>
+        <strong>PATRIMONIO</strong>
         <span className="admin-nav-user">
           {displayName} · {email}
         </span>
