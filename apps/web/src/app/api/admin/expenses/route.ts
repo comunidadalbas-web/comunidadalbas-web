@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
   }
   const item = await prisma.expense.create({
     data: {
+      propertyId: data.propertyId,
       spentAt: data.spentAt ? new Date(`${data.spentAt}T12:00:00Z`) : null,
       category: data.category,
       provider: data.provider || null,

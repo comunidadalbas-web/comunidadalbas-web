@@ -11,6 +11,7 @@ describe('finance validation', () => {
   it('accepts a requested expense with HTTPS evidence', () => {
     expect(
       expenseSchema.safeParse({
+        propertyId: 'prop-1',
         category: 'Mantenimiento',
         description: 'Reparación de bomba',
         amount: 1250,
@@ -23,6 +24,7 @@ describe('finance validation', () => {
   it('rejects non-positive expenses and insecure evidence URLs', () => {
     expect(
       expenseSchema.safeParse({
+        propertyId: 'prop-1',
         category: 'X',
         description: 'Reparación',
         amount: 0,

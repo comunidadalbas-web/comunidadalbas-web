@@ -130,6 +130,7 @@ model Property {
     taxRecords    TaxRecord[]
     inventories   AssetInventory[]
     administrationFees AdministrationFee[]
+    expensesGeneral Expense[]
     createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -218,21 +219,25 @@ model PaymentApplication {
 }
 
 model Expense {
-  id             String        @id @default(cuid())
-  spentAt        DateTime?
-  category       String
-  provider       String?
-  description    String
-  amount         Decimal       @db.Decimal(12, 2)
-  fund           String
-  status         ExpenseStatus @default(REQUESTED)
-  evidenceUrl    String?
-  requestedById  String?
-  authorizedById String?
-  reconciledById String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-}
+    id             String        @id @default(cuid())
+    propertyId     String
+    property       Property      @relation(fields: [propertyId], references: [id])
+    spentAt        DateTime?
+    category       String
+    provider       String?
+    description    String
+    amount         Decimal       @db.Decimal(12, 2)
+    fund           String
+    status         ExpenseStatus @default(REQUESTED)
+    evidenceUrl    String?
+    requestedById  String?
+    authorizedById String?
+    reconciledById String?
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+  
+    @@index([propertyId, status])
+  }
 
 model Document {
   id              String     @id @default(cuid())

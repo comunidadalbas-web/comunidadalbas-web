@@ -25,15 +25,16 @@ export const EXPENSE_STATUSES = [
 ] as const;
 
 export const expenseSchema = z.object({
-  spentAt: z.union([z.literal(''), z.string().date('Fecha inválida')]).optional(),
-  category: z.string().trim().min(2, 'La categoría es obligatoria').max(80),
-  provider: z.string().trim().max(160).optional().default(''),
-  description: z.string().trim().min(3, 'El concepto es obligatorio').max(500),
-  amount: z.coerce.number().positive('El monto debe ser mayor a cero').max(10_000_000),
-  fund: z.string().trim().min(2, 'El fondo es obligatorio').max(120),
-  status: z.enum(EXPENSE_STATUSES).default('REQUESTED'),
-  evidenceUrl: optionalHttpsUrl,
-});
+    propertyId: z.string().min(1, 'Selecciona una propiedad'),
+    spentAt: z.union([z.literal(''), z.string().date('Fecha inválida')]).optional(),
+    category: z.string().trim().min(2, 'La categoría es obligatoria').max(80),
+    provider: z.string().trim().max(160).optional().default(''),
+    description: z.string().trim().min(3, 'El concepto es obligatorio').max(500),
+    amount: z.coerce.number().positive('El monto debe ser mayor a cero').max(10_000_000),
+    fund: z.string().trim().min(2, 'El fondo es obligatorio').max(120),
+    status: z.enum(EXPENSE_STATUSES).default('REQUESTED'),
+    evidenceUrl: optionalHttpsUrl,
+  });
 
 export const expenseUpdateSchema = expenseSchema
   .partial()
