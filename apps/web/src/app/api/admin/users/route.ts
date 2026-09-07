@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   });
 
   return NextResponse.json({
-    items: users.map((u) => ({
+    items: users.map((u: any) => ({
       id: u.id,
       email: u.email,
       displayName: u.displayName,
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       mustChangePassword: u.mustChangePassword,
       lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
       createdAt: u.createdAt.toISOString(),
-      roles: u.roles.map((r) => r.role),
+      roles: u.roles.map((r: any) => r.role),
     })),
   });
 }

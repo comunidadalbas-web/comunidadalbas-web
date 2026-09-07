@@ -26,7 +26,7 @@ export default async function EdificiosPage() {
     include: { _count: { select: { units: true } } },
   });
 
-  const serialized = buildings.map((b) => ({
+  const serialized = buildings.map((b: any) => ({
     id: b.id,
     code: b.code,
     name: b.name,

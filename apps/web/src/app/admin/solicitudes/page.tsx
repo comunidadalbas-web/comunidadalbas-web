@@ -17,7 +17,7 @@ export default async function SolicitudesPage() {
     prisma.contactRequest.count(),
   ]);
 
-  const serialized = items.map((item) => ({
+  const serialized = items.map((item: any) => ({
     id: item.id,
     folio: item.folio,
     name: item.name,

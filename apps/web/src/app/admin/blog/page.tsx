@@ -40,7 +40,7 @@ export default async function BlogAdminPage() {
     countsByPost.set(group.postId, counts);
   }
 
-  const serialized = items.map((p) => ({
+  const serialized = items.map((p: any) => ({
     id: p.id,
     title: p.title,
     slug: p.slug,
@@ -59,7 +59,7 @@ export default async function BlogAdminPage() {
 
   const csrfCookie = (await cookies()).get(CSRF_COOKIE)?.value ?? '';
   const csrf = csrfCookie.split('.')[0] ?? '';
-  const serializedComments = comments.map((comment) => ({
+  const serializedComments = comments.map((comment: any) => ({
     id: comment.id,
     postTitle: comment.post.title,
     parentId: comment.parentId,

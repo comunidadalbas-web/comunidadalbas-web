@@ -17,7 +17,7 @@ export default async function AnnouncementsPage() {
     prisma.announcement.count(),
   ]);
 
-  const serialized = items.map((a) => ({
+  const serialized = items.map((a: any) => ({
     id: a.id,
     title: a.title,
     body: a.body,

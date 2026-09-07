@@ -83,13 +83,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     before: {
       displayName: existing.displayName,
       active: existing.active,
-      roles: (await prisma.roleAssignment.findMany({ where: { userId: id } })).map((r) => r.role),
+      roles: (await prisma.roleAssignment.findMany({ where: { userId: id } })).map((r: any) => r.role),
     },
     after: {
       displayName: user.displayName,
       active: user.active,
       mustChangePassword: user.mustChangePassword,
-      roles: user.roles.map((r) => r.role),
+      roles: user.roles.map((r: any) => r.role),
     },
   });
 
@@ -100,7 +100,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       email: user.email,
       displayName: user.displayName,
       active: user.active,
-      roles: user.roles.map((r) => r.role),
+      roles: user.roles.map((r: any) => r.role),
     },
   });
 }
@@ -144,7 +144,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   await prisma.roleAssignment.deleteMany({ where: { userId: id } });
   const auditRows = await prisma.auditLog.findMany({ where: { userId: id }, select: { id: true } });
   await Promise.all(
-    auditRows.map((row) =>
+    auditRows.map((row: any) =>
       prisma.auditLog
         .update({ where: { id: row.id }, data: { userId: null } })
         .catch(() => undefined),

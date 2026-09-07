@@ -26,8 +26,8 @@ export default async function UnitsPage() {
       <p className="page-subtitle">Catálogo operativo para cargos, pagos y estados de cuenta</p>
       <UnitsClient
         csrfToken={csrfCookie.split('.')[0] ?? ''}
-        buildings={buildings.map((b) => ({ id: b.id, code: b.code, name: b.name }))}
-        items={units.map((u) => ({
+        buildings={buildings.map((b: any) => ({ id: b.id, code: b.code, name: b.name }))}
+        items={units.map((u: any) => ({
           id: u.id,
           code: u.code,
           apartmentNumber: u.apartmentNumber,

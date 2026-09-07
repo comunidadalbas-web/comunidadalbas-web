@@ -17,7 +17,7 @@ export default async function CalendarPage() {
     prisma.calendarEvent.count(),
   ]);
 
-  const serialized = items.map((e) => ({
+  const serialized = items.map((e: any) => ({
     id: e.id,
     title: e.title,
     description: e.description,

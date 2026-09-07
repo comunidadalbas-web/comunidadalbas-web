@@ -17,7 +17,7 @@ export default async function CampaignsPage() {
     prisma.campaign.count(),
   ]);
 
-  const serialized = items.map((c) => ({
+  const serialized = items.map((c: any) => ({
     id: c.id,
     title: c.title,
     description: c.description,

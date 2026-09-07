@@ -22,7 +22,7 @@ export default async function ExpensesPage() {
       </p>
       <ExpensesClient
         csrfToken={csrfCookie.split('.')[0] ?? ''}
-        items={items.map((item) => ({
+        items={items.map((item: any) => ({
           id: item.id,
           spentAt: item.spentAt?.toISOString().slice(0, 10) ?? '',
           category: item.category,

@@ -25,7 +25,7 @@ export default async function ConceptosPage() {
 
   const concepts = await prisma.feeConcept.findMany({ orderBy: { name: 'asc' } });
 
-  const serialized = concepts.map((c) => ({
+  const serialized = concepts.map((c: any) => ({
     id: c.id,
     name: c.name,
     amount: Number(c.amount),

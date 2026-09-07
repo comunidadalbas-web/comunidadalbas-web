@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
     },
   });
   return NextResponse.json({
-    items: items.map((item) => ({
+    items: items.map((item: any) => ({
       ...item,
       amount: Number(item.amount),
-      applied: item.payments.reduce((sum, payment) => sum + Number(payment.amount), 0),
+      applied: item.payments.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0),
     })),
   });
 }

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   ]);
 
   return NextResponse.json({
-    items: items.map((a) => ({ ...a, createdAt: a.createdAt.toISOString(), updatedAt: a.updatedAt.toISOString(), publishedAt: a.publishedAt?.toISOString() ?? null })),
+    items: items.map((a: any) => ({ ...a, createdAt: a.createdAt.toISOString(), updatedAt: a.updatedAt.toISOString(), publishedAt: a.publishedAt?.toISOString() ?? null })),
     total,
   });
 }

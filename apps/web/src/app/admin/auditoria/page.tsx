@@ -41,7 +41,7 @@ export default async function AuditoriaPage() {
     include: { user: { select: { email: true, displayName: true } } },
   });
 
-  const serialized = logs.map((l) => ({
+  const serialized = logs.map((l: any) => ({
     id: l.id,
     action: l.action,
     entityType: l.entityType,
@@ -73,7 +73,7 @@ export default async function AuditoriaPage() {
               </tr>
             </thead>
             <tbody>
-              {serialized.map((l) => (
+              {serialized.map((l: any) => (
                 <tr key={l.id}>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     {new Date(l.createdAt).toLocaleString('es-MX')}

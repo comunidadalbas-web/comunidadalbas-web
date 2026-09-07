@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   });
 
   return NextResponse.json({
-    items: units.map((u) => ({
+    items: units.map((u: any) => ({
       id: u.id,
       code: u.code,
       apartmentNumber: u.apartmentNumber,

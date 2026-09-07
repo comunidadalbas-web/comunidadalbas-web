@@ -60,8 +60,8 @@ export default async function PaymentsPage() {
       <PaymentsClient
         csrfToken={csrfCookie.split('.')[0] ?? ''}
         units={units}
-        concepts={concepts.map((c) => ({ ...c, amount: Number(c.amount) }))}
-        charges={charges.map((c) => ({
+        concepts={concepts.map((c: any) => ({ ...c, amount: Number(c.amount) }))}
+        charges={charges.map((c: any) => ({
           id: c.id,
           unitId: c.unitId,
           unitCode: c.unit.code,
@@ -69,9 +69,9 @@ export default async function PaymentsPage() {
           conceptName: c.feeConcept.name,
           period: c.period,
           amount: Number(c.amount),
-          applied: c.payments.reduce((sum, p) => sum + Number(p.amount), 0),
+          applied: c.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0),
         }))}
-        payments={payments.map((p) => ({
+        payments={payments.map((p: any) => ({
           id: p.id,
           unitId: p.unitId,
           unitCode: p.unit.code,
@@ -81,7 +81,7 @@ export default async function PaymentsPage() {
           trackingKey: p.trackingKey ?? '',
           status: p.status,
         }))}
-        orders={orders.map((o) => ({
+        orders={orders.map((o: any) => ({
           ...o,
           amount: Number(o.amount),
           createdAt: o.createdAt.toISOString(),

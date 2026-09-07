@@ -35,7 +35,7 @@ export async function PATCH(request: NextRequest, context: Context) {
     },
   });
   if (!existing) return NextResponse.json({ error: 'Pago no encontrado' }, { status: 404 });
-  if (!transitions[existing.status].includes(parsed.data.status))
+  if (!transitions[existing.status as PaymentStatus].includes(parsed.data.status as PaymentStatus))
     return NextResponse.json(
       { error: `Transición no permitida: ${existing.status} → ${parsed.data.status}` },
       { status: 409 },
@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest, context: Context) {
       );
     const remaining =
       Number(charge.amount) -
-      charge.payments.reduce((sum, application) => sum + Number(application.amount), 0);
+      charge.payments.reduce((sum: number, application: any) => sum + Number(application.amount), 0);
     if (Number(existing.amount) > remaining + 0.001)
       return NextResponse.json(
         { error: 'El pago excede el saldo pendiente del cargo' },
@@ -93,7 +93,7 @@ export async function PATCH(request: NextRequest, context: Context) {
       ...item,
       amount: Number(item.amount),
       paidAt: item.paidAt?.toISOString() ?? null,
-      applications: item.applications.map((application) => ({
+      applications: item.applications.map((application: any) => ({
         ...application,
         amount: Number(application.amount),
       })),

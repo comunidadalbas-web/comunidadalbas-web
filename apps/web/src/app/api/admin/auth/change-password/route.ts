@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     after: { email: user.email },
   });
 
-  const roles = (await prisma.roleAssignment.findMany({ where: { userId: user.id } })).map((r) => r.role);
+  const roles = (await prisma.roleAssignment.findMany({ where: { userId: user.id } })).map((r: any) => r.role);
   const payload = {
     userId: user.id,
     email: user.email,

@@ -37,7 +37,7 @@ const EMPTY_FORM = {
   email: '',
   displayName: '',
   password: '',
-  roles: ['resident'] as Role[],
+  roles: ['arrendatario'] as Role[],
 };
 
 export default function UsersClient({ items, currentUserId, csrfToken }: Props) {

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   const concepts = await prisma.feeConcept.findMany({ orderBy: { name: 'asc' } });
   return NextResponse.json({
-    items: concepts.map((c) => ({
+    items: concepts.map((c: any) => ({
       id: c.id,
       name: c.name,
       amount: Number(c.amount),

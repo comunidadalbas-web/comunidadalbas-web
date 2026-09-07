@@ -22,7 +22,7 @@ export default async function AdminDocumentosPage() {
       </p>
       <DocumentsClient
         csrfToken={csrfCookie.split('.')[0] ?? ''}
-        items={docs.map((doc) => ({
+        items={docs.map((doc: any) => ({
           id: doc.id,
           title: doc.title,
           description: doc.description ?? '',

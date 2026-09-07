@@ -47,7 +47,7 @@ export async function PATCH(request: NextRequest, context: Context) {
   if (
     data.status &&
     data.status !== existing.status &&
-    !transitions[existing.status].includes(data.status)
+    !transitions[existing.status as ExpenseStatus].includes(data.status as ExpenseStatus)
   ) {
     return NextResponse.json(
       { error: `Transición no permitida: ${existing.status} → ${data.status}` },

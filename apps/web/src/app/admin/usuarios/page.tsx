@@ -33,7 +33,7 @@ export default async function UsuariosPage() {
     },
   });
 
-  const serialized = users.map((u) => ({
+  const serialized = users.map((u: any) => ({
     id: u.id,
     email: u.email,
     displayName: u.displayName,
@@ -41,7 +41,7 @@ export default async function UsuariosPage() {
     mustChangePassword: u.mustChangePassword,
     lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
     createdAt: u.createdAt.toISOString(),
-    roles: u.roles.map((r) => r.role),
+    roles: u.roles.map((r: any) => r.role),
   }));
 
   const csrfCookie = (await cookies()).get(CSRF_COOKIE)?.value ?? '';

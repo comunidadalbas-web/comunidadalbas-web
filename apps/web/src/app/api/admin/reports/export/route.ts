@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       orderBy: [{ building: { code: 'asc' } }, { apartmentNumber: 'asc' }],
       include: { building: { select: { code: true, name: true } } },
     });
-    const rows = units.map((u) => ({
+    const rows = units.map((u: any) => ({
       edificio: u.building.code,
       nombre_edificio: u.building.name,
       departamento: u.apartmentNumber,
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       orderBy: { code: 'asc' },
       include: { _count: { select: { units: true } } },
     });
-    const rows = buildings.map((b) => ({
+    const rows = buildings.map((b: any) => ({
       codigo: b.code,
       nombre: b.name,
       estado: b.status,
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 
   if (type === 'concepts') {
     const concepts = await prisma.feeConcept.findMany({ orderBy: { name: 'asc' } });
-    const rows = concepts.map((c) => ({
+    const rows = concepts.map((c: any) => ({
       nombre: c.name,
       monto: Number(c.amount),
       fuente_autoridad: c.authoritySource,
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
       include: { unit: { select: { code: true, apartmentNumber: true } } },
       take: 1000,
     });
-    const rows = payments.map((p) => ({
+    const rows = payments.map((p: any) => ({
       fecha_reporte: p.reportedAt.toISOString(),
       unidad: p.unit.code,
       departamento: p.unit.apartmentNumber,
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
       take: 1000,
     });
-    const rows = orders.map((o) => ({
+    const rows = orders.map((o: any) => ({
       fecha: o.createdAt.toISOString(),
       orden: o.orderId,
       referencia_externa: o.externalReference,
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
       orderBy: { spentAt: 'desc' },
       take: 1000,
     });
-    const rows = expenses.map((e) => ({
+    const rows = expenses.map((e: any) => ({
       fecha: e.spentAt?.toISOString() ?? '',
       categoria: e.category,
       proveedor: e.provider ?? '',
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
   if (type === 'series') {
     const months = Math.min(Math.max(Number(searchParams.get('months') || 6), 1), 24);
     const series = await getMonthlySeries(months);
-    const rows = series.map((s) => ({
+    const rows = series.map((s: any) => ({
       mes: s.month,
       ingresos: s.income,
       egresos: s.expenses,
