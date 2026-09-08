@@ -22,6 +22,12 @@ enum PaymentStatus {
   DUPLICATE
 }
 
+enum PaymentReconciliationStatus {
+  PENDING_RECONCILIATION
+  CONFIRMED
+  REJECTED
+}
+
 enum ExpenseStatus {
   REQUESTED
   AUTHORIZED
@@ -107,72 +113,72 @@ enum InventoryCondition {
 }
 
 model Property {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  name          String
-  type          String       @default("Departamento")
-  state         String?
-  municipality  String?
-  development   String?
-  privateArea   String?
-  unitNumber    String?
-  areaM2        Decimal?     @db.Decimal(8, 2)
-  parkingSpace  String?
-  use           String       @default("Habitacional")
-  status        RecordStatus @default(ACTIVE)
-  notes         String?
-  units         Unit[]
-  tenants       Tenant[]
-  leases        Lease[]
-  expenses      PropertyExpense[]
-  tickets       MaintenanceTicket[]
-    documents     PropertyDocument[]
-    taxRecords    TaxRecord[]
-    inventories   AssetInventory[]
-    administrationFees AdministrationFee[]
-    expensesGeneral Expense[]
-    listings      Listing[]
-    createdAt     DateTime     @default(now())
-updatedAt     DateTime     @updatedAt
-  }
-  
-  model Listing {
-    id                String        @id @default(cuid())
-    propertyId        String?       @unique
-    property          Property?     @relation(fields: [propertyId], references: [id])
-    slug              String        @unique
-    title             String
-    development       String?
-    privateArea       String?
-    unitReference     String?
-    monthlyRent       Decimal       @db.Decimal(12, 2)
-    administrationIncluded Boolean     @default(false)
-    negotiable        Boolean       @default(true)
-    bedrooms          Int
-    bathrooms         Int
-    parkingSpaces     Int
-    areaM2            Decimal       @db.Decimal(8, 2)
-    description       String?
-    features          String?
-    availableFrom     DateTime?
-    contactEmail      String
-    contactPhone      String?
-    ownerVerified     Boolean       @default(false)
-    status            ListingStatus @default(DRAFT)
-    createdAt         DateTime    @default(now())
-    updatedAt         DateTime    @updatedAt
-  }
-  
-  enum ListingStatus {
-    DRAFT
-    PENDING_REVIEW
-    PUBLISHED
-    RESERVED
-    RENTED
-    ARCHIVED
-  }
-  
-  model Building {
+  id                 String              @id @default(cuid())
+  code               String              @unique
+  name               String
+  type               String              @default("Departamento")
+  state              String?
+  municipality       String?
+  development        String?
+  privateArea        String?
+  unitNumber         String?
+  areaM2             Decimal?            @db.Decimal(8, 2)
+  parkingSpace       String?
+  use                String              @default("Habitacional")
+  status             RecordStatus        @default(ACTIVE)
+  notes              String?
+  units              Unit[]
+  tenants            Tenant[]
+  leases             Lease[]
+  expenses           PropertyExpense[]
+  tickets            MaintenanceTicket[]
+  documents          PropertyDocument[]
+  taxRecords         TaxRecord[]
+  inventories        AssetInventory[]
+  administrationFees AdministrationFee[]
+  expensesGeneral    Expense[]
+  listings           Listing[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+model Listing {
+  id                     String        @id @default(cuid())
+  propertyId             String?       @unique
+  property               Property?     @relation(fields: [propertyId], references: [id])
+  slug                   String        @unique
+  title                  String
+  development            String?
+  privateArea            String?
+  unitReference          String?
+  monthlyRent            Decimal       @db.Decimal(12, 2)
+  administrationIncluded Boolean       @default(false)
+  negotiable             Boolean       @default(true)
+  bedrooms               Int
+  bathrooms              Int
+  parkingSpaces          Int
+  areaM2                 Decimal       @db.Decimal(8, 2)
+  description            String?
+  features               String?
+  availableFrom          DateTime?
+  contactEmail           String
+  contactPhone           String?
+  ownerVerified          Boolean       @default(false)
+  status                 ListingStatus @default(DRAFT)
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  RESERVED
+  RENTED
+  ARCHIVED
+}
+
+model Building {
   id        String       @id @default(cuid())
   code      String       @unique
   name      String
@@ -224,25 +230,25 @@ model Charge {
 }
 
 model Payment {
-    id                 String               @id @default(cuid())
-    unitId             String
-    unit               Unit                 @relation(fields: [unitId], references: [id])
-    leaseId            String?
-    lease              Lease?               @relation(fields: [leaseId], references: [id])
-    paidAt             DateTime?
-    reportedAt         DateTime             @default(now())
-    amount             Decimal              @db.Decimal(12, 2)
-    reference          String?
-    trackingKey        String?              @unique
-    providerMovementId String?              @unique
-    status             PaymentStatus        @default(REPORTED)
-    applications       PaymentApplication[]
-    leaseChargePayments LeaseChargePayment[]
-    notes              String?
-    createdById        String?
-    createdAt          DateTime             @default(now())
-    updatedAt          DateTime             @updatedAt
-  }
+  id                  String               @id @default(cuid())
+  unitId              String
+  unit                Unit                 @relation(fields: [unitId], references: [id])
+  leaseId             String?
+  lease               Lease?               @relation(fields: [leaseId], references: [id])
+  paidAt              DateTime?
+  reportedAt          DateTime             @default(now())
+  amount              Decimal              @db.Decimal(12, 2)
+  reference           String?
+  trackingKey         String?              @unique
+  providerMovementId  String?              @unique
+  status              PaymentStatus        @default(REPORTED)
+  applications        PaymentApplication[]
+  leaseChargePayments LeaseChargePayment[]
+  notes               String?
+  createdById         String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
 
 model PaymentApplication {
   id        String  @id @default(cuid())
@@ -256,25 +262,25 @@ model PaymentApplication {
 }
 
 model Expense {
-    id             String        @id @default(cuid())
-    propertyId     String
-    property       Property      @relation(fields: [propertyId], references: [id])
-    spentAt        DateTime?
-    category       String
-    provider       String?
-    description    String
-    amount         Decimal       @db.Decimal(12, 2)
-    fund           String
-    status         ExpenseStatus @default(REQUESTED)
-    evidenceUrl    String?
-    requestedById  String?
-    authorizedById String?
-    reconciledById String?
-    createdAt      DateTime      @default(now())
-    updatedAt      DateTime      @updatedAt
-  
-    @@index([propertyId, status])
-  }
+  id             String        @id @default(cuid())
+  propertyId     String
+  property       Property      @relation(fields: [propertyId], references: [id])
+  spentAt        DateTime?
+  category       String
+  provider       String?
+  description    String
+  amount         Decimal       @db.Decimal(12, 2)
+  fund           String
+  status         ExpenseStatus @default(REQUESTED)
+  evidenceUrl    String?
+  requestedById  String?
+  authorizedById String?
+  reconciledById String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([propertyId, status])
+}
 
 model Document {
   id              String     @id @default(cuid())
@@ -501,54 +507,54 @@ model RateLimitEntry {
 }
 
 model Tenant {
-  id            String       @id @default(cuid())
-  propertyId    String
-  property      Property     @relation(fields: [propertyId], references: [id])
-  firstName     String
-  lastName      String
-  email         String?
-  phone         String?
-  altPhone      String?
-  idType        String?
-  idNumber      String?
-  emergencyName String?
+  id             String       @id @default(cuid())
+  propertyId     String
+  property       Property     @relation(fields: [propertyId], references: [id])
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  altPhone       String?
+  idType         String?
+  idNumber       String?
+  emergencyName  String?
   emergencyPhone String?
-  notes         String?
-  status        RecordStatus @default(ACTIVE)
-  leases        Lease[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  notes          String?
+  status         RecordStatus @default(ACTIVE)
+  leases         Lease[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model Lease {
-    id            String       @id @default(cuid())
-    propertyId    String
-    property      Property     @relation(fields: [propertyId], references: [id])
-    unitId        String?
-    unit          Unit?        @relation(fields: [unitId], references: [id])
-    tenantId      String
-    tenant        Tenant       @relation(fields: [tenantId], references: [id])
-    code          String       @unique
-    status        LeaseStatus  @default(DRAFT)
-    startDate     DateTime
-    endDate       DateTime
-    monthlyRent   Decimal      @db.Decimal(12, 2)
-    depositAmount Decimal      @db.Decimal(12, 2) @default(0)
-    paymentDay    Int          @default(1)
-    guaranteeType String?
-    guaranteeAmount Decimal?   @db.Decimal(12, 2)
-    petsAllowed   Boolean      @default(false)
-    vehicles      String?
-    notes         String?
-    occupants     LeaseOccupant[]
-    charges       LeaseCharge[]
-    payments      Payment[]
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-  
-    @@index([propertyId, status])
-    @@index([tenantId])
-  }
+  id              String          @id @default(cuid())
+  propertyId      String
+  property        Property        @relation(fields: [propertyId], references: [id])
+  unitId          String?
+  unit            Unit?           @relation(fields: [unitId], references: [id])
+  tenantId        String
+  tenant          Tenant          @relation(fields: [tenantId], references: [id])
+  code            String          @unique
+  status          LeaseStatus     @default(DRAFT)
+  startDate       DateTime
+  endDate         DateTime
+  monthlyRent     Decimal         @db.Decimal(12, 2)
+  depositAmount   Decimal         @default(0) @db.Decimal(12, 2)
+  paymentDay      Int             @default(1)
+  guaranteeType   String?
+  guaranteeAmount Decimal?        @db.Decimal(12, 2)
+  petsAllowed     Boolean         @default(false)
+  vehicles        String?
+  notes           String?
+  occupants       LeaseOccupant[]
+  charges         LeaseCharge[]
+  payments        Payment[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([propertyId, status])
+  @@index([tenantId])
+}
 
 model LeaseOccupant {
   id        String   @id @default(cuid())
@@ -563,154 +569,156 @@ model LeaseOccupant {
 }
 
 model LeaseCharge {
-    id          String   @id @default(cuid())
-    leaseId     String
-    lease       Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
-    concept     String
-    amount      Decimal  @db.Decimal(12, 2)
-    period      String
-    dueDate     DateTime?
-    status      String   @default("PENDING")
-    notes       String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    payments    LeaseChargePayment[]
-  
-    @@index([leaseId, period])
-  }
-  
-  model LeaseChargePayment {
-    id           String      @id @default(cuid())
-    leaseChargeId String
-    leaseCharge   LeaseCharge @relation(fields: [leaseChargeId], references: [id], onDelete: Cascade)
-    paymentId    String
-    payment       Payment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-    amount       Decimal     @db.Decimal(12, 2)
-    createdAt    DateTime    @default(now())
-  
-    @@unique([leaseChargeId, paymentId])
-  }
-  
-  model SecurityDeposit {
-  id          String   @id @default(cuid())
-  leaseId     String
-  amount      Decimal  @db.Decimal(12, 2)
-  receivedAt  DateTime
-  returnedAt  DateTime?
-  returnAmount Decimal? @db.Decimal(12, 2)
-  notes       String?
-  createdAt   DateTime @default(now())
+  id               String               @id @default(cuid())
+  leaseId          String
+  lease            Lease                @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  concept          String
+  amount           Decimal              @db.Decimal(12, 2)
+  period           String
+  dueDate          DateTime?
+  status           String               @default("PENDING")
+  notes            String?
+  paymentReference String               @unique
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  payments         LeaseChargePayment[]
+
+  @@index([leaseId, period])
+}
+
+model LeaseChargePayment {
+  id              String      @id @default(cuid())
+  leaseChargeId   String
+  leaseCharge     LeaseCharge @relation(fields: [leaseChargeId], references: [id], onDelete: Cascade)
+  paymentId       String
+  payment         Payment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  amount          Decimal     @db.Decimal(12, 2)
+  speiTrackingKey String?     @unique
+  createdAt       DateTime    @default(now())
+
+  @@unique([leaseChargeId, paymentId])
+}
+
+model SecurityDeposit {
+  id           String    @id @default(cuid())
+  leaseId      String
+  amount       Decimal   @db.Decimal(12, 2)
+  receivedAt   DateTime
+  returnedAt   DateTime?
+  returnAmount Decimal?  @db.Decimal(12, 2)
+  notes        String?
+  createdAt    DateTime  @default(now())
 }
 
 model AdministrationFee {
-    id            String   @id @default(cuid())
-    propertyId    String
-    property      Property @relation(fields: [propertyId], references: [id])
-    name          String
-    amount        Decimal  @db.Decimal(12, 2)
-    periodicity   String   @default("Mensual")
-    beneficiary   String?
-    startDate     DateTime
-    endDate       DateTime?
-    status        RecordStatus @default(ACTIVE)
-    notes         String?
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
-  
-    @@index([propertyId, status])
-  }
+  id          String       @id @default(cuid())
+  propertyId  String
+  property    Property     @relation(fields: [propertyId], references: [id])
+  name        String
+  amount      Decimal      @db.Decimal(12, 2)
+  periodicity String       @default("Mensual")
+  beneficiary String?
+  startDate   DateTime
+  endDate     DateTime?
+  status      RecordStatus @default(ACTIVE)
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([propertyId, status])
+}
 
 model PropertyExpense {
-  id            String       @id @default(cuid())
-  propertyId    String
-  property      Property     @relation(fields: [propertyId], references: [id])
-  category      String
-  description   String
-  amount        Decimal      @db.Decimal(12, 2)
-  spentAt       DateTime?
-  provider      String?
-  evidenceUrl   String?
-  fund          String?
-  status        ExpenseStatus @default(REQUESTED)
-  requestedById String?
+  id             String        @id @default(cuid())
+  propertyId     String
+  property       Property      @relation(fields: [propertyId], references: [id])
+  category       String
+  description    String
+  amount         Decimal       @db.Decimal(12, 2)
+  spentAt        DateTime?
+  provider       String?
+  evidenceUrl    String?
+  fund           String?
+  status         ExpenseStatus @default(REQUESTED)
+  requestedById  String?
   authorizedById String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([propertyId, category])
 }
 
 model MaintenanceTicket {
-  id            String       @id @default(cuid())
-  propertyId    String
-  property      Property     @relation(fields: [propertyId], references: [id])
-  title         String
-  description   String?
-  priority      TicketPriority @default(MEDIUM)
-  status        TicketStatus   @default(OPEN)
-  assignedTo    String?
-  reportedAt    DateTime     @default(now())
-  resolvedAt    DateTime?
-  cost          Decimal?     @db.Decimal(12, 2)
-  notes         String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id          String         @id @default(cuid())
+  propertyId  String
+  property    Property       @relation(fields: [propertyId], references: [id])
+  title       String
+  description String?
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+  assignedTo  String?
+  reportedAt  DateTime       @default(now())
+  resolvedAt  DateTime?
+  cost        Decimal?       @db.Decimal(12, 2)
+  notes       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([propertyId, status])
 }
 
 model AssetInventory {
-    id            String       @id @default(cuid())
-    propertyId    String
-    property      Property     @relation(fields: [propertyId], references: [id])
-    name          String
-    brand         String?
-    model         String?
-    serialNumber  String?
-    category      String?
-    description   String?
-    quantity      Int          @default(1)
-    condition     InventoryCondition @default(GOOD)
-    location      String?
-    notes         String?
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-  
-    @@index([propertyId, category])
-  }
+  id           String             @id @default(cuid())
+  propertyId   String
+  property     Property           @relation(fields: [propertyId], references: [id])
+  name         String
+  brand        String?
+  model        String?
+  serialNumber String?
+  category     String?
+  description  String?
+  quantity     Int                @default(1)
+  condition    InventoryCondition @default(GOOD)
+  location     String?
+  notes        String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([propertyId, category])
+}
 
 model PropertyDocument {
-  id            String     @id @default(cuid())
-  propertyId    String
-  property      Property   @relation(fields: [propertyId], references: [id])
-  title         String
-  category      String
-  description   String?
-  fileUrl       String
-  storageProvider String   @default("EXTERNAL")
-  storageKey    String?
-  sha256        String?
-  documentDate  DateTime?
-  visibility    Visibility @default(RESTRICTED)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id              String     @id @default(cuid())
+  propertyId      String
+  property        Property   @relation(fields: [propertyId], references: [id])
+  title           String
+  category        String
+  description     String?
+  fileUrl         String
+  storageProvider String     @default("EXTERNAL")
+  storageKey      String?
+  sha256          String?
+  documentDate    DateTime?
+  visibility      Visibility @default(RESTRICTED)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   @@index([propertyId, category])
 }
 
 model TaxRecord {
-  id            String   @id @default(cuid())
-  propertyId    String
-  property      Property @relation(fields: [propertyId], references: [id])
-  taxType       String
-  period        String
-  amount        Decimal  @db.Decimal(12, 2)
-  dueDate       DateTime?
-  paidAt        DateTime?
-  receiptUrl    String?
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id         String    @id @default(cuid())
+  propertyId String
+  property   Property  @relation(fields: [propertyId], references: [id])
+  taxType    String
+  period     String
+  amount     Decimal   @db.Decimal(12, 2)
+  dueDate    DateTime?
+  paidAt     DateTime?
+  receiptUrl String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([propertyId, taxType, period])
 }

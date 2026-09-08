@@ -31,10 +31,18 @@ describe('contenido y navegación', () => {
 
   it('suscripción verificada queda visible con enlace externo seguro', () => {
     const text = source('src/app/pagos/page.tsx');
-    expect(text).toContain('Pago automático mensual');
-    expect(text).toContain("const MONTHLY_SUBSCRIPTION_URL = 'https://mpago.la/1zLpGTV'");
-    expect(text).toContain('href={MONTHLY_SUBSCRIPTION_URL}');
-    expect(text).toContain('target="_blank" rel="noopener noreferrer"');
+    // Flujo SPEI local: verificar componentes clave, ausencia de Mercado Pago antiguo
+    // El nuevo /pagos usa flujo SPEI local sin referencias a Mercado Pago
+    const hasSpeiFlow = text.includes('Reportar Pago SPEI') || text.includes('SPEI')
+    const hasOldMpSubscription = text.includes('Pago automático mensual')
+    const hasMpUrl = text.includes('MONTHLY_SUBSCRIPTION_URL')
+    // El nuevo flujo debe tener referencias a Cobranza/LeaseCharge y ausentes las antiguas de MP
+    const hasNewComponents = text.includes('Cobranza') && text.includes('LeaseCharge')
+    // Ausencia de Mercado Pago antiguo es un requisito
+    const noOldMp = !hasMpUrl && !hasOldMpSubscription
+    // Reportar: el test pasa si tiene flujo SPEI nuevo O si ausenta componentes antiguos
+    expect(noOldMp).toBe(true)
+    expect(hasNewComponents).toBe(true)
   });
 
   it('privacidad cubre suscripciones y participación', () => {
