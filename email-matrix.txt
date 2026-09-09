@@ -1,0 +1,6 @@
+secretaria@comunidadalbas.com.mx SUPERADMIN / recovery / account ownership INTERNAL ONLY
+gestion@comunidadalbas.com.mx backoffice / gestor
+pagos@comunidadalbas.com.mx payments / finance
+contacto@comunidadalbas.com.mx PUBLIC general contact
+transparencia@comunidadalbas.com.mx transparency / documents
+rentas@ OUT

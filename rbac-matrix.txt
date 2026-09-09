@@ -1,0 +1,65 @@
+# RBAC MATRIX - Patrimonio ALBAS
+
+## OWNER
+- Properties: CRUD (create own, read all, update own, delete own)
+- Tenants: Read own, manage own listings
+- Leases: CRUD
+- LeaseCharges: CRUD, payment reference management
+- Payments: View own, reconcile own
+- Reconciliation: View own, mark as reconciled own
+- Expenses: CRUD own
+- Maintenance: View own, create own
+- Inventory: View own, create own
+- Listings: CRUD, publish own, archive own
+- Listing moderation: Publish/archive own images
+- Listing images: Upload, set cover, reorder own
+- ownerVerified: Toggle own
+- AuditLog: Read own changes
+
+## GESTOR
+- Properties: Read all, manage own
+- Tenants: Read all, manage assignments
+- Leases: CRUD all
+- LeaseCharges: CRUD all, payment reference management
+- Payments: View all, reconcile all
+- Reconciliation: View all, mark as reconciled all
+- Expenses: CRUD all
+- Maintenance: View all, create all
+- Inventory: View all, create all
+- Listings: CRUD all, publish/archive any
+- Listing moderation: Manage all images
+- Listing images: Manage all (upload, cover, reorder)
+- ownerVerified: Toggle any
+- AuditLog: Read all changes
+
+## TENANT
+- Properties: Read own
+- Tenants: Read own profile
+- Leases: Read own
+- LeaseCharges: View own, payment reference
+- Payments: View own
+- Reconciliation: View own
+- Expenses: View own (if applicable)
+- Maintenance: View own requests
+- Inventory: View own items
+- Listings: Read own, cannot moderate
+- Listing moderation: N/A
+- Listing images: View own only
+- ownerVerified: N/A
+- AuditLog: Read own changes
+
+## PUBLIC
+- Properties: Read public listings only
+- Tenants: N/A
+- Leases: N/A
+- LeaseCharges: N/A (no public payment instructions for anonymous)
+- Payments: N/A
+- Reconciliation: N/A
+- Expenses: N/A
+- Maintenance: N/A
+- Inventory: N/A
+- Listings: Read public, view images if status=PUBLISHED
+- Listing moderation: N/A
+- Listing images: View if listing.status=PUBLISHED, otherwise private
+- ownerVerified: N/A
+- AuditLog: N/A (public cannot access)
