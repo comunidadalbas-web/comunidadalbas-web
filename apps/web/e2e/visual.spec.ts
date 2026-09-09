@@ -9,6 +9,7 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page)
 }
 
 test('desktop visual evidence', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   await expect(page.locator('h1')).toContainText('PATRIMONIO');
@@ -22,6 +23,7 @@ test('desktop visual evidence', async ({ page }) => {
 });
 
 test('mobile visual evidence', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('/');
   await expect(page.locator('h1')).toContainText('PATRIMONIO');

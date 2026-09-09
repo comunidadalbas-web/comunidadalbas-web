@@ -3,6 +3,19 @@ import { createHmac } from 'node:crypto';
 export const E2E_SESSION_SECRET = 'e2e-session-secret-only-2026-08-01-0123456789';
 export const E2E_CSRF_SECRET = 'e2e-csrf-secret-only-2026-08-01-9876543210';
 
+const E2E_DB_URL =
+  process.env.E2E_DATABASE_URL ||
+  'postgresql://albas:albas_dev@localhost:55432/comunidadalbas_e2e';
+
+// Network guardrail: fail immediately if E2E touches a remote host
+const FORBIDDEN_HOSTS = ['neon.tech', 'aws.neon.tech'];
+const DB_HOST = E2E_DB_URL.toLowerCase();
+for (const h of FORBIDDEN_HOSTS) {
+  if (DB_HOST.includes(h)) {
+    throw new Error(`E2E blocked: database host contains "${h}". E2E must use local Postgres only.`);
+  }
+}
+
 export function buildAdminCookies() {
   const payload = {
     v: 'v1',

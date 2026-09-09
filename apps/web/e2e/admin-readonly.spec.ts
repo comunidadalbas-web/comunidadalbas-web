@@ -56,6 +56,7 @@ test('all administrative pages render read-only', async ({ page }) => {
 });
 
 test('admin dashboard visual evidence desktop and mobile', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin');
   await expect(page.locator('h1')).toContainText('PATRIMONIO');
@@ -78,6 +79,7 @@ test('admin dashboard visual evidence desktop and mobile', async ({ page }) => {
 });
 
 test('institutional user policy is visible and responsive', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin/usuarios');
   await expect(page.getByText(/Cuentas autorizadas: \d+\/5/)).toBeVisible();

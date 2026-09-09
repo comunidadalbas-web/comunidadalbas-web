@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 import { buildAdminCookies } from './helpers/session';
 import { Client } from 'pg';
 
-const NEON_URL = 'postgresql://neondb_owner:npg_7dXxUPSlJ6eH@ep-lively-frog-auck3bxc-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const E2E_DATABASE_URL =
+  process.env.E2E_DATABASE_URL ||
+  'postgresql://albas:albas_dev@localhost:55432/comunidadalbas_e2e';
 
 let csrfToken = '';
 let cookieHeader = '';
@@ -23,7 +25,7 @@ test.beforeEach(async ({ context }) => {
 });
 
 async function getOrCreatePropertyId(): Promise<string> {
-  const client = new Client({ connectionString: NEON_URL });
+  const client = new Client({ connectionString: E2E_DATABASE_URL });
   await client.connect();
   try {
     const existing = await client.query(`SELECT id FROM "Property" WHERE code = 'E2E-TEST' LIMIT 1`);
