@@ -1,7 +1,8 @@
 # CODEX DEPLOYMENT HANDOFF — Patrimonio v0.1
 
-**Date**: 2026-09-09  
-**Branch**: `feature/patrimonio-v0.1`  
+**Date**: 2026-09-09
+**Branch**: `feature/patrimonio-v0.1`
+**HEAD**: `a59d3a2`
 **Status**: Ready for pre-deploy review and external deployment
 
 ---
@@ -18,12 +19,22 @@
 | Email | Nodemailer (optional) | `src/lib/email/` |
 | Container | Docker Compose | `docker-compose.yml` |
 
-## Database
+## Environment Variables (Required)
 
-- **Schema**: 35 models, 724 lines at `packages/db/prisma/schema.prisma`
-- **Production URL**: Set via `DATABASE_URL` env var (Neon or compatible)
-- **E2E URL**: `postgresql://albas:albas_dev@localhost:55432/comunidadalbas_e2e`
-- **Adapter**: `PRISMA_ADAPTER=pg` switches from `PrismaNeonHTTP` to `PrismaPg` (TCP)
+```
+DATABASE_URL=<production-postgres-url>  # Neon or compatible Postgres
+SESSION_SECRET=<random-64-chars>        # HMAC session signing
+CSRF_SECRET=<random-64-chars>           # HMAC CSRF signing
+PRISMA_ADAPTER=pg                       # Required for non-Neon Postgres
+```
+
+## Migration Path
+
+1. Set env vars above in target platform
+2. `npx prisma db push` — sync schema to database
+3. `npx prisma db seed` — populate initial data
+4. `pnpm build` — verify production build
+5. `pnpm test:e2e` — run E2E against local Docker Postgres
 
 ## Auth Model
 
@@ -33,14 +44,60 @@
 - Roles: `admin`, `owner`, `tesorero` (from `apps/web/src/lib/auth/guards.ts`)
 - Default login sets `roles: ['admin', 'owner', 'tesorero']`
 
-## Environment Variables (Required)
+## Payment Architecture
 
-```
-DATABASE_URL=postgresql://...         # Production DB
-SESSION_SECRET=<random-64-chars>      # HMAC session signing
-CSRF_SECRET=<random-64-chars>         # HMAC CSRF signing
-PRISMA_ADAPTER=pg                     # Required for non-Neon Postgres
-```
+- MercadoPago webhook at `/api/integrations/mercadopago/webhook`
+- Pilot order flow at `/admin/integraciones/mercadopago/piloto-real`
+- SPEI test flow at `/admin/integraciones/mercadopago/prueba-spei`
+- Payment reference model: `PaymentReference` with folio tracking
+- Egresos (expenses) model with status: PENDING, RECONCILED, CANCELLED
+
+## Email Matrix
+
+5 frozen institutional accounts — no new accounts allowed:
+
+| Account | Role |
+|---------|------|
+| secretaria@ | Superadmin |
+| gestion@ | Gestor |
+| pagos@ | Finance |
+| contacto@ | Public |
+| transparencia@ | Transparency |
+
+Source of truth: `apps/web/src/lib/users/institutional-accounts.ts`
+
+## Deployment Targets
+
+- **GitHub**: Repository `comunidadalbas`, branch `feature/patrimonio-v0.1`
+- **Vercel**: Next.js app, environment variables as listed above
+- **Neon**: Production Postgres (if using Neon, set `PRISMA_ADAPTER` accordingly)
+- **Supabase**: Not currently used — reserved for future storage/auth
+
+## Storage Task
+
+- File uploads via Vercel Blob (`@vercel/blob` v2.6.1)
+- Document management at `/admin/documentos`
+- Upload API at `/api/admin/uploads`
+
+## Do-Not-Touch List
+
+- `apps/web/src/lib/users/institutional-accounts.ts` — frozen email matrix
+- `Mahya_Tecnologias_Logo_Official_Package/` — Mahya brand asset
+- `packages/db/prisma/schema.prisma` — schema changes require full migration review
+- Session cookie names (`patrimonio_session`, `patrimonio_csrf`)
+- `apps/web/src/lib/auth/constants.ts` — auth constants
+- E2E session secrets (test-only, never production)
+
+## Rollback Data
+
+- All schema changes tracked in Prisma migrations
+- Git history: `git log --oneline` on `feature/patrimonio-v0.1`
+- Last known good: `a59d3a2` (all gates green)
+- Rollback: `git revert HEAD` or `git reset --hard <commit>`
+
+## Mahya Pre-Production Footer
+
+`MAHYA_FOOTER = RESERVED_FOR_CODEX_PREDEPLOY` — do not modify until Codex team provides production assets.
 
 ## E2E Testing
 
@@ -50,45 +107,6 @@ PRISMA_ADAPTER=pg                     # Required for non-Neon Postgres
 - **Package script**: `pnpm test:e2e` (runs setup + tests)
 - **Workers**: 2 (configurable in `playwright.config.ts`)
 - **Guardrail**: Rejects `neon.tech`, `aws.neon.tech`, `pooler` in DB URL
-
-## E2E Fixtures
-
-| Entity | ID / Identifier |
-|--------|-----------------|
-| Property | `PROPERTY-E2E-TEST` (slug: `albas-203`) |
-| Building | `Edificio Albas` (propertyId: `PROPERTY-E2E-TEST`) |
-| Unit | `Unidad 101` (buildingId from above) |
-| Admin user | `e2e-admin@example.invalid` (roles: admin, owner, tesorero) |
-| Read-only user | `e2e-readonly@example.invalid` (roles: admin only) |
-| Fee concept | Mensualidad (monthly rent) |
-
-## Branding
-
-- **Public portal**: "Comunidad Albas"
-- **Internal backoffice**: "PATRIMONIO"
-- **Mahya asset**: `Mahya_Tecnologios_Logo_Official_Package` (RESERVED_FOR_CODEX_PREDEPLOY)
-- **Institutional emails**: 5 frozen accounts (secretaria, gestion, pagos, contacto, transparencia)
-
-## Pre-Deploy Checklist
-
-- [ ] Set `DATABASE_URL`, `SESSION_SECRET`, `CSRF_SECRET` in production env
-- [ ] Set `PRISMA_ADAPTER=pg` if not using Neon HTTP adapter
-- [ ] Run `npx prisma db push` to sync schema
-- [ ] Run `npx prisma db seed` to populate initial data
-- [ ] Verify `pnpm build` succeeds
-- [ ] Verify `pnpm test` passes (149/149)
-- [ ] Verify `pnpm test:e2e` passes (14/14)
-
-## Test Status
-
-| Gate | Status |
-|------|--------|
-| `pnpm typecheck` | ✅ PASS |
-| `pnpm lint` | ✅ PASS |
-| `pnpm test` | ✅ 149/149 PASS |
-| `pnpm build` | ✅ PASS |
-| `pnpm test:e2e` (Run 1) | ✅ 14/14 PASS |
-| `pnpm test:e2e` (Run 2) | ✅ 14/14 PASS |
 
 ## Key Files
 
@@ -101,3 +119,14 @@ PRISMA_ADAPTER=pg                     # Required for non-Neon Postgres
 | `apps/web/src/lib/auth/` | HMAC sessions, guards, cookies |
 | `apps/web/src/lib/users/institutional-accounts.ts` | Frozen email matrix |
 | `docker-compose.yml` | Local Postgres (port 55432) |
+
+## Test Status
+
+| Gate | Status |
+|------|--------|
+| `pnpm typecheck` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm test` | 149/149 PASS |
+| `pnpm build` | PASS |
+| `pnpm test:e2e` (Run 1) | 14/14 PASS |
+| `pnpm test:e2e` (Run 2) | 14/14 PASS |
