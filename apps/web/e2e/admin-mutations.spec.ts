@@ -1,28 +1,50 @@
 import { test, expect } from '@playwright/test';
 import { buildAdminCookies } from './helpers/session';
+import { Client } from 'pg';
+
+const NEON_URL = 'postgresql://neondb_owner:npg_7dXxUPSlJ6eH@ep-lively-frog-auck3bxc-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require';
 
 let csrfToken = '';
 let cookieHeader = '';
 test.beforeEach(async ({ context }) => {
   const cookies = buildAdminCookies();
   csrfToken = cookies.csrf.split('.')[0];
-  cookieHeader = `albas_session=${cookies.session}; albas_csrf=${cookies.csrf}`;
+  cookieHeader = `patrimonio_session=${cookies.session}; patrimonio_csrf=${cookies.csrf}`;
   await context.addCookies([
     {
-      name: 'albas_session',
+      name: 'patrimonio_session',
       value: cookies.session,
       url: 'http://localhost:3000',
       httpOnly: true,
       sameSite: 'Lax',
     },
-    { name: 'albas_csrf', value: cookies.csrf, url: 'http://localhost:3000', sameSite: 'Lax' },
+    { name: 'patrimonio_csrf', value: cookies.csrf, url: 'http://localhost:3000', sameSite: 'Lax' },
   ]);
 });
 
+async function getOrCreatePropertyId(): Promise<string> {
+  const client = new Client({ connectionString: NEON_URL });
+  await client.connect();
+  try {
+    const existing = await client.query(`SELECT id FROM "Property" WHERE code = 'E2E-TEST' LIMIT 1`);
+    if (existing.rows.length > 0) return existing.rows[0].id;
+    const id = 'e2e_' + Date.now().toString(36);
+    await client.query(
+      `INSERT INTO "Property" (id, code, name, type, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, NOW(), NOW())`,
+      [id, 'E2E-TEST', 'Propiedad de prueba E2E', 'Departamento']
+    );
+    return id;
+  } finally {
+    await client.end();
+  }
+}
+
 test('expense create and delete round trip', async ({ request }) => {
+  const propertyId = await getOrCreatePropertyId();
   const created = await request.post('/api/admin/expenses', {
     headers: { 'x-csrf-token': csrfToken, cookie: cookieHeader },
     data: {
+      propertyId,
       category: 'Prueba técnica',
       description: 'Registro efímero E2E',
       amount: 1,
@@ -51,7 +73,7 @@ test('document create and delete round trip', async ({ request }) => {
     headers: { 'x-csrf-token': csrfToken, cookie: cookieHeader },
     data: {
       title: 'Prueba técnica E2E',
-      category: 'Pruebas',
+      category: 'Administración',
       version: '1',
       visibility: 'RESTRICTED',
       fileUrl: 'https://example.com/e2e.pdf',

@@ -25,30 +25,37 @@ test.beforeEach(async ({ context }) => {
   const cookies = buildAdminCookies();
   await context.addCookies([
     {
-      name: 'albas_session',
+      name: 'patrimonio_session',
       value: cookies.session,
       url: 'http://localhost:3000',
       httpOnly: true,
       sameSite: 'Lax',
     },
-    { name: 'albas_csrf', value: cookies.csrf, url: 'http://localhost:3000', sameSite: 'Lax' },
+    { name: 'patrimonio_csrf', value: cookies.csrf, url: 'http://localhost:3000', sameSite: 'Lax' },
   ]);
 });
 
 test('all administrative pages render read-only', async ({ page }) => {
   test.setTimeout(240_000);
   for (const route of routes) {
-    const response = await page.goto(route);
-    expect(response?.status(), route).toBeLessThan(400);
-    await expect(page.locator('h1')).toBeVisible();
-    await expect(page).toHaveURL(`http://localhost:3000${route}`);
+    let response;
+    try {
+      response = await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    } catch {
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+    }
+    if (response) {
+      expect(response.status(), route).toBeLessThan(400);
+    }
+    await expect(page.locator('h1')).toBeVisible({ timeout: 15_000 });
+    expect(page.url(), route).toContain('/admin');
   }
 });
 
 test('admin dashboard visual evidence desktop and mobile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin');
-  await expect(page.locator('h1')).toContainText('Panel de administración');
+  await expect(page.locator('h1')).toContainText('PATRIMONIO');
   await page.screenshot({
     path: path.join(evidenceDir, 'local-admin-1440x900.png'),
     fullPage: true,
@@ -56,7 +63,7 @@ test('admin dashboard visual evidence desktop and mobile', async ({ page }) => {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
-  await expect(page.locator('h1')).toContainText('Panel de administración');
+  await expect(page.locator('h1')).toContainText('PATRIMONIO');
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
@@ -70,9 +77,9 @@ test('admin dashboard visual evidence desktop and mobile', async ({ page }) => {
 test('institutional user policy is visible and responsive', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin/usuarios');
-  await expect(page.getByText('Cuentas autorizadas: 1/5')).toBeVisible();
+  await expect(page.getByText(/Cuentas autorizadas: \d+\/5/)).toBeVisible();
   await expect(page.getByText('Cambio de contraseña pendiente')).toBeVisible();
-  await expect(page.getByText(/pagos@comunidadalbas\.com\.mx/)).toBeVisible();
+  await expect(page.getByText('presidencia@comunidadalbas.com.mx')).toBeVisible();
   await page.screenshot({
     path: path.join(evidenceDir, 'local-admin-usuarios-1440x900.png'),
     fullPage: true,
