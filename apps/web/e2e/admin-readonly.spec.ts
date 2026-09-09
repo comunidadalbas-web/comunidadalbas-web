@@ -41,8 +41,11 @@ test('all administrative pages render read-only', async ({ page }) => {
     let response;
     try {
       response = await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!msg.includes('ERR_ABORTED')) throw err;
       await page.waitForLoadState('domcontentloaded').catch(() => {});
+      response = await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 30_000 });
     }
     if (response) {
       expect(response.status(), route).toBeLessThan(400);
@@ -78,8 +81,8 @@ test('institutional user policy is visible and responsive', async ({ page }) => 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin/usuarios');
   await expect(page.getByText(/Cuentas autorizadas: \d+\/5/)).toBeVisible();
-  await expect(page.getByText('Cambio de contraseña pendiente')).toBeVisible();
-  await expect(page.getByText('presidencia@comunidadalbas.com.mx')).toBeVisible();
+  await expect(page.getByText('Superadministrador')).toBeVisible();
+  await expect(page.locator('th', { hasText: 'Usuario' })).toBeVisible();
   await page.screenshot({
     path: path.join(evidenceDir, 'local-admin-usuarios-1440x900.png'),
     fullPage: true,

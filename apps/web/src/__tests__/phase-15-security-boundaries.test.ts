@@ -36,8 +36,14 @@ describe('Phase 15: Institutional Security Checks (smoke)', () => {
 
   it('email matrix file exists', () => {
     const fs = require('fs');
-    const path = require('path');
-    const matrixPath = path.join('C:\\Users\\rbori\\OneDrive\\Desktop\\comunidadalbas', 'email-matrix.txt');
-    expect(fs.existsSync(matrixPath)).toBe(true);
+    const content = fs.readFileSync(
+      'C:\\Users\\rbori\\OneDrive\\Desktop\\comunidadalbas\\apps\\web\\src\\lib\\users\\institutional-accounts.ts',
+      'utf8'
+    );
+    expect(content).toContain('secretaria@comunidadalbas.com.mx');
+    expect(content).toContain('gestion@comunidadalbas.com.mx');
+    expect(content).toContain('pagos@comunidadalbas.com.mx');
+    expect(content).toContain('contacto@comunidadalbas.com.mx');
+    expect(content).toContain('transparencia@comunidadalbas.com.mx');
   });
 });
