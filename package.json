@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^7.0.0",
+    "next": "^16.2.11",
     "prettier": "^3.5.0"
   }
 }
